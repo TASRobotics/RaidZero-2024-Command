@@ -26,7 +26,7 @@ public class Constants {
         public static final int BR_AZIMUTH_ID = 0;
         
         public static final int FL_ENCODER_ID = 0;
-        public static final int FR_ENCODER_IDd = 0;
+        public static final int FR_ENCODER_ID = 0;
         public static final int BL_ENCODER_ID= 0;
         public static final int BR_ENCODER_ID = 0;
         
