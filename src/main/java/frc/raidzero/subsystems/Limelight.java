@@ -10,6 +10,8 @@ import frc.raidzero.Constants.LimelightConstants;
 // Reference:
 // http://docs.limelightvision.io/en/latest/networktables_api.html
 public class Limelight extends SubsystemBase {
+
+	Timestamp timestamp = Timestamp.getInstance();
 	/**
 	 * LED modes for Limelight.
 	 */
@@ -55,14 +57,12 @@ public class Limelight extends SubsystemBase {
 		// 		.withSize(3, 3);
 	}
 
-	@Override
-	public void onStart(double timestamp) {
+	public void onStart() {
 		setLedMode(LedMode.Off);
         setPipeline(0);
 	}
 
-    @Override
-    public void update(double timestamp) {
+    public void update() {
         SmartDashboard.putNumber("Limelight X Value", getTx());
     }
 
@@ -197,7 +197,6 @@ public class Limelight extends SubsystemBase {
 		return table.getEntry(key);
 	}
 
-	@Override
 	public void stop() {
 		setLedMode(LedMode.Off);
 	}

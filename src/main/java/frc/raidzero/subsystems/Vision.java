@@ -12,8 +12,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Timer;
 
 import frc.raidzero.Constants.VisionConstants;
-import raidzero.wrappers.LimelightHelpers;
-import raidzero.wrappers.LimelightHelpers.Results;
+import frc.raidzero.wrappers.LimelightHelpers;
+import frc.raidzero.wrappers.LimelightHelpers.Results;
 
 public class Vision extends SubsystemBase {
     private static Vision instance;
@@ -41,18 +41,16 @@ public class Vision extends SubsystemBase {
     private Vision() {
     }
 
-    @Override
     public void onInit() {
         LimelightHelpers.getLatestResults(VisionConstants.APRILTAG_CAM_NAME);
     }
 
-    @Override
     public void onStart(double timestamp) {
         alliance = DriverStation.getAlliance().get();
     }
 
     @Override
-    public void update(double timestamp) {
+    public void periodic() {
         updatePose();
         updateNote();
         SmartDashboard.putNumber("Vision X", getVisionPose().getX());
@@ -69,9 +67,7 @@ public class Vision extends SubsystemBase {
         }
     }
 
-    @Override
-    public void stop() {
-    }
+   
 
     public void updatePose() {
         Results results = LimelightHelpers.getLatestResults(VisionConstants.APRILTAG_CAM_NAME).targetingResults;
