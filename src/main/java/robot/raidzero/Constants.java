@@ -38,14 +38,6 @@ public class Constants {
         public static final double BL_AZIMUTH_OFFSET = -0.880371 /*+ 0.5*/;
         public static final double BR_AZIMUTH_OFFSET = -0.955566 /*+ 0.5*/;
         
-        public static final double THROTTLE_REDUCTION = (14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 45.0);
-        public static final double AZIMUTH_REDUCTION = (14.0 / 50.0) * (10.0 / 60.0);
-        
-        public static final double MAX_VEL_MPS = 6000 * THROTTLE_REDUCTION / 60 * Math.PI * 0.102;// 4.959668;
-        public static final double REAL_MAX_VEL_MPS = 4.2;
-        // public static final double TESTING_MAX_VEL_MPS = 3.0;
-        // public static final double TESTING_MAX_ACCEL_MPSPS = 3.0;
-        
         //* Dimensions & conversions
         public static final double TRACK_WIDTH = Units.inchesToMeters(22.75);
         public static final double WHEEL_BASE = Units.inchesToMeters(22.75);
@@ -72,6 +64,16 @@ public class Constants {
         public static final double THROTTLE_ROT_TO_WHEEL_ROTATION = (50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0);
         public static final double THROTTLE_WHEEL_ROT_TO_METERS = 1 / (Math.PI * WHEEL_DIAMETER_METERS);
         public static final double METERS_TO_THROTTLE_ROT = THROTTLE_ROT_TO_WHEEL_ROTATION / THROTTLE_WHEEL_ROT_TO_METERS;
+
+        
+        public static final double THROTTLE_REDUCTION = (14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 45.0);
+        public static final double AZIMUTH_REDUCTION = (14.0 / 50.0) * (10.0 / 60.0);
+        
+        public static final double MAX_VEL_MPS = 6000 * THROTTLE_REDUCTION / 60 * Math.PI * 0.102;// 4.959668;
+        public static final double REAL_MAX_VEL_MPS = 4.2;
+        public static final double MAX_ANGULAR_VEL_RPS = MAX_VEL_MPS * Math.sqrt(2) * TRACK_WIDTH;
+        // public static final double TESTING_MAX_VEL_MPS = 3.0;
+        // public static final double TESTING_MAX_ACCEL_MPSPS = 3.0;
         
         //* Azimuth PID values
         public static final double AZIMUTH_KP = 0.0;
@@ -129,6 +131,8 @@ public class Constants {
     public static final String CANBUS_ID = "seCANdary";
     
     public static final boolean ENABLE_FOC = true;
+
+    public static final double STICK_DEADBAND = 0.02;
 
 }
     
