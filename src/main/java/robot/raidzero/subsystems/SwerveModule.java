@@ -1,4 +1,4 @@
-package raidzero.subsystems;
+package robot.raidzero.subsystems;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
@@ -18,9 +18,9 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import raidzero.Constants;
-import raidzero.Constants.Swerve;
-import raidzero.lib.math.Conversions;
+import robot.raidzero.Constants;
+import robot.raidzero.Constants.Swerve;
+import robot.raidzero.lib.math.Conversions;
 
 public class SwerveModule {
     
