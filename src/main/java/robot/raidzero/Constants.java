@@ -66,68 +66,69 @@ public class Constants {
             new Translation2d(-WHEEL_BASE / 2.0, TRACK_WIDTH / 2.0),
             new Translation2d(-WHEEL_BASE / 2.0, -TRACK_WIDTH / 2.0),
             new Translation2d(WHEEL_BASE / 2.0, TRACK_WIDTH / 2.0),
-            new Translation2d(WHEEL_BASE / 2.0, -TRACK_WIDTH / 2.0));
+            new Translation2d(WHEEL_BASE / 2.0, -TRACK_WIDTH / 2.0)
+        );
             
-            public static final double THROTTLE_ROT_TO_WHEEL_ROTATION = (50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0);
-            public static final double THROTTLE_WHEEL_ROT_TO_METERS = 1 / (Math.PI * WHEEL_DIAMETER_METERS);
-            public static final double METERS_TO_THROTTLE_ROT = THROTTLE_ROT_TO_WHEEL_ROTATION / THROTTLE_WHEEL_ROT_TO_METERS;
-            
-            //* Azimuth PID values
-            public static final double AZIMUTH_KP = 0.0;
-            public static final double AZIMUTH_KI = 0.0;
-            public static final double AZIMUTH_KD = 0.0;
-            
-            //* Throttle PID constants
-            public static final double THROTTLE_KP = 0.0;
-            public static final double THROTTLE_KI = 0.0;
-            public static final double THROTTLE_KD = 0.0;
-            public static final double THROTTLE_KF = 0.0;
-            
-            //* Throttle Characterization Values
-            public static final double THROTTLE_KS = 0.0;
-            public static final double THROTTLE_KV = 0.0;
-            public static final double THROTTLE_KA = 0.0;
-            
-            //* Translation pathing PID constants
-            public static final double TRANSLATION_KP = 0.0;
-            public static final double TRANSLATION_KI = 0.0;
-            public static final double TRANSLATION_KD = 0.0;
-            
-            //* Rotation pathing PID constants
-            public static final double ROTATION_KP = 0.0;
-            public static final double ROTATION_KI = 0.0;
-            public static final double ROTATION_KD = 0.0;
+        public static final double THROTTLE_ROT_TO_WHEEL_ROTATION = (50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0);
+        public static final double THROTTLE_WHEEL_ROT_TO_METERS = 1 / (Math.PI * WHEEL_DIAMETER_METERS);
+        public static final double METERS_TO_THROTTLE_ROT = THROTTLE_ROT_TO_WHEEL_ROTATION / THROTTLE_WHEEL_ROT_TO_METERS;
+        
+        //* Azimuth PID values
+        public static final double AZIMUTH_KP = 0.0;
+        public static final double AZIMUTH_KI = 0.0;
+        public static final double AZIMUTH_KD = 0.0;
+        
+        //* Throttle PID constants
+        public static final double THROTTLE_KP = 0.0;
+        public static final double THROTTLE_KI = 0.0;
+        public static final double THROTTLE_KD = 0.0;
+        public static final double THROTTLE_KF = 0.0;
+        
+        //* Throttle Characterization Values
+        public static final double THROTTLE_KS = 0.0;
+        public static final double THROTTLE_KV = 0.0;
+        public static final double THROTTLE_KA = 0.0;
+        
+        //* Translation pathing PID constants
+        public static final double TRANSLATION_KP = 0.0;
+        public static final double TRANSLATION_KI = 0.0;
+        public static final double TRANSLATION_KD = 0.0;
+        
+        //* Rotation pathing PID constants
+        public static final double ROTATION_KP = 0.0;
+        public static final double ROTATION_KI = 0.0;
+        public static final double ROTATION_KD = 0.0;
 
-            public static final int THROTTLE_VEL_PID_SLOT = 0;
-            public static final double THROTTLE_PID_UPDATE_HZ = 1000.0;
-            public static final int AZIMUTH_POS_PID_SLOT = 0;
-            public static final double AZIMUTH_PID_UPDATE_HZ = 1000.0;
-            
-            public static final InvertedValue THROTTLE_INVERSION = InvertedValue.Clockwise_Positive;
-            public static final InvertedValue AZIMUTH_INVERSION = InvertedValue.Clockwise_Positive;
-            public static final NeutralModeValue THROTTLE_NEUTRAL_MODE = NeutralModeValue.Brake;
-            public static final NeutralModeValue AZIMUTH_NEUTRAL_MODE = NeutralModeValue.Brake;
-            
-            public static final AbsoluteSensorRangeValue AZIMUTH_ENCODER_RANGE = AbsoluteSensorRangeValue.Unsigned_0To1;
-            public static final SensorDirectionValue AZIMUTH_ENCODER_DIRECTION = SensorDirectionValue.CounterClockwise_Positive;
-            
-            public static CurrentLimitsConfigs AZIMUTH_CURRENT_LIMIT_CONFIGS = new CurrentLimitsConfigs()
+        public static final int THROTTLE_VEL_PID_SLOT = 0;
+        public static final double THROTTLE_PID_UPDATE_HZ = 1000.0;
+        public static final int AZIMUTH_POS_PID_SLOT = 0;
+        public static final double AZIMUTH_PID_UPDATE_HZ = 1000.0;
+        
+        public static final InvertedValue THROTTLE_INVERSION = InvertedValue.Clockwise_Positive;
+        public static final InvertedValue AZIMUTH_INVERSION = InvertedValue.Clockwise_Positive;
+        public static final NeutralModeValue THROTTLE_NEUTRAL_MODE = NeutralModeValue.Brake;
+        public static final NeutralModeValue AZIMUTH_NEUTRAL_MODE = NeutralModeValue.Brake;
+        
+        public static final AbsoluteSensorRangeValue AZIMUTH_ENCODER_RANGE = AbsoluteSensorRangeValue.Unsigned_0To1;
+        public static final SensorDirectionValue AZIMUTH_ENCODER_DIRECTION = SensorDirectionValue.CounterClockwise_Positive;
+        
+        public static CurrentLimitsConfigs AZIMUTH_CURRENT_LIMIT_CONFIGS = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(30)
             .withSupplyCurrentLimitEnable(true)
             .withSupplyCurrentThreshold(40)
             .withSupplyTimeThreshold(0.2);
-            
-            public static CurrentLimitsConfigs THROTTLE_CURRENT_LIMIT_CONFIGS = new CurrentLimitsConfigs()
+        
+        public static CurrentLimitsConfigs THROTTLE_CURRENT_LIMIT_CONFIGS = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(40)
             .withSupplyCurrentLimitEnable(true)
             .withSupplyCurrentThreshold(60)
             .withSupplyTimeThreshold(0.2);
-            
-        }
         
-        public static final String CANBUS_ID = "seCANdary";
-        
-        public static final boolean ENABLE_FOC = true;
-
     }
+    
+    public static final String CANBUS_ID = "seCANdary";
+    
+    public static final boolean ENABLE_FOC = true;
+
+}
     
