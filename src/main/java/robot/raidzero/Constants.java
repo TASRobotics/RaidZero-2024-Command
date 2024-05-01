@@ -5,6 +5,7 @@ import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -127,10 +128,31 @@ public class Constants {
             .withSupplyTimeThreshold(0.2);
         
     }
+
+    public static final class IntakeConstants {
+        public static final int INTAKE_ID = 61;
+
+        // Motor Output Constants
+        public static final InvertedValue LEADER_INVERSION = InvertedValue.Clockwise_Positive;
+        public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+
+        // Current Limit Constants
+        public static final double SUPPLY_CURRENT_LIMIT = 20.0;
+        public static final boolean SUPPLY_CURRENT_ENABLE = true;
+        public static final double SUPPLY_CURRENT_THRESHOLD = 30.0;
+        public static final double SUPPLY_TIME_THRESHOLD = 0.2;
+
+        // Open Loop Ramp Rate Constants
+        public static final double VOLTAGE_RAMP_RATE = 0.125;
+
+        public static final double BEAM_BRAKE_TIME = 0.05;
+    }
     
     public static final String CANBUS_ID = "seCANdary";
     
     public static final boolean ENABLE_FOC = true;
+    
+    public static final double MAX_MOTOR_VOLTAGE = 12.0;
 
     public static final double STICK_DEADBAND = 0.02;
 
