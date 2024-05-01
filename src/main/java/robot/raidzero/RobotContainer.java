@@ -4,15 +4,36 @@
 
 package robot.raidzero;
 
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import robot.raidzero.commands.TeleopSwerve;
+import robot.raidzero.subsystems.Swerve;
 
 public class RobotContainer {
+	// Controllers
+	private final XboxController master = new XboxController(0);
+	
+	// Subsystems
+	private final Swerve swerve = Swerve.getSwerve();
+
 	public RobotContainer() {
+		swerve.setDefaultCommand(new TeleopSwerve(
+			() -> master.getLeftY(),
+			() -> master.getLeftX(),
+			() -> master.getRightX(),
+			() -> false)
+		);
+
 		configureBindings();
 	}
 
 	private void configureBindings() {
+		new JoystickButton(master, XboxController.Button.kY.value).onTrue(
+			new InstantCommand(() -> swerve.zeroHeading())
+		);
 	}
 
 	public Command getAutonomousCommand() {
