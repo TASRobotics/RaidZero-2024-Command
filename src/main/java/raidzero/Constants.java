@@ -1,4 +1,4 @@
-package frc.raidzero;
+package raidzero;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;

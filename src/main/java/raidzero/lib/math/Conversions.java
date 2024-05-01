@@ -1,4 +1,4 @@
-package frc.raidzero.lib.math;
+package raidzero.lib.math;
 
 public class Conversions {
     /**
