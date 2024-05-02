@@ -30,6 +30,8 @@ public class Vision extends SubsystemBase {
     private double noteY = 0;
     private double noteA = 0;
 
+    private static Vision vision = new Vision();
+
     public Vision() {
         alliance = DriverStation.getAlliance().get();
 
@@ -120,6 +122,10 @@ public class Vision extends SubsystemBase {
             // swerve.getPoseEstimator()
             //     .addVisionMeasurement(robotPose, Timer.getFPGATimestamp() - (tl/1000.0) - (cl/1000.0));
         }
+    }
+
+    public static Vision getVision() {
+        return vision;
     }
 
     @Override
