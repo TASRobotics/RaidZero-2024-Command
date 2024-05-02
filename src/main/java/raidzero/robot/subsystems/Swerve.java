@@ -1,21 +1,33 @@
 package raidzero.robot.subsystems;
 
+import java.util.Optional;
+
+import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import raidzero.robot.Constants;
 
@@ -24,7 +36,19 @@ public class Swerve extends SubsystemBase {
     private Pigeon2 pigeon;
     private SwerveModule moduleFL, moduleFR, moduleBL, moduleBR;
 
-    private SwerveDriveOdometry odometry;
+    private SwerveDrivePoseEstimator odometry;
+
+    private Vision vision = Vision.getVision();
+
+    private Field2d field;
+
+    private Alliance alliance;
+
+    private PPHolonomicDriveController ppController;
+
+    private PIDController mSnapController;
+
+    private ProfiledPIDController mAimAssistYController;
 
     private static Swerve swerve = new Swerve();
 
@@ -65,11 +89,44 @@ public class Swerve extends SubsystemBase {
         pigeon.getConfigurator().apply(new Pigeon2Configuration());
         pigeon.setYaw(0);
 
-        odometry = new SwerveDriveOdometry(
+        odometry = new SwerveDrivePoseEstimator(
             Constants.Swerve.SWERVE_DRIVE_KINEMATICS,
-            getRotation(),
-            getModulePositions()
+            getHeading(),
+            getModulePositions(),
+            getPose()
         );
+
+        ppController = new PPHolonomicDriveController(
+            new PIDConstants(
+                Constants.Swerve.TRANSLATION_KP,
+                Constants.Swerve.TRANSLATION_KI,
+                Constants.Swerve.TRANSLATION_KD
+            ),
+            new PIDConstants(
+                Constants.Swerve.ROTATION_KP,
+                Constants.Swerve.ROTATION_KI,
+                Constants.Swerve.ROTATION_KD
+            ),
+            Constants.Swerve.MAX_VEL_MPS,
+            0.4
+        );
+
+        mSnapController = new PIDController(
+            Constants.Swerve.SNAP_CONTROLLER_KP, 
+            Constants.Swerve.SNAP_CONTROLLER_KI, 
+            Constants.Swerve.SNAP_CONTROLLER_KD
+        );
+
+        mAimAssistYController = new ProfiledPIDController(
+            Constants.Swerve.AIM_ASSIST_CONTROLLER_KP, 
+            Constants.Swerve.AIM_ASSIST_CONTROLLER_KI, 
+            Constants.Swerve.AIM_ASSIST_CONTROLLER_KD, 
+            Constants.Swerve.AIM_ASSIST_CONTROLLER_CONSTRAINTS
+        );
+
+        field = new Field2d();
+
+        alliance = DriverStation.getAlliance().get();
 
         configureAutoBuilder();
 
@@ -104,6 +161,44 @@ public class Swerve extends SubsystemBase {
         moduleFR.setDesiredState(swerveModuleStates[1], isOpenLoop);
         moduleBL.setDesiredState(swerveModuleStates[2], isOpenLoop);
         moduleBR.setDesiredState(swerveModuleStates[3], isOpenLoop);
+    }
+
+    public synchronized void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds,
+            Matrix<N3, N1> visionMeasurementStdDevs) {
+        try {
+            // visionMeasurementStdDevs = new MatBuilder<N3, N1>(Nat.N3(),
+            // Nat.N1()).fill(0.2, 0.2, 0.1);
+            // mOdometry.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
+            odometry.addVisionMeasurement(
+                visionRobotPoseMeters,
+                timestampSeconds,
+                visionMeasurementStdDevs
+            );
+        } catch (Exception e) {
+            System.out.println("Cholesky decomposition failed, reverting...:");
+        }
+    }
+
+    public void enableTeleopRampRate(boolean enable) {
+        ClosedLoopRampsConfigs config = new ClosedLoopRampsConfigs();
+
+        if (enable) {
+            config.VoltageClosedLoopRampPeriod = Constants.Swerve.TELEOP_RAMP_RATE;
+        } else {
+            config.VoltageClosedLoopRampPeriod = 0;
+        }
+
+        moduleFL.getThrottle().getConfigurator().apply(config, Constants.CAN_TIMEOUT_MS);
+        moduleFR.getThrottle().getConfigurator().apply(config, Constants.CAN_TIMEOUT_MS);
+        moduleBL.getThrottle().getConfigurator().apply(config, Constants.CAN_TIMEOUT_MS);
+        moduleBR.getThrottle().getConfigurator().apply(config, Constants.CAN_TIMEOUT_MS);
+    }
+
+    public void stop() {
+        moduleFL.stopMotors();
+        moduleFR.stopMotors();
+        moduleBL.stopMotors();
+        moduleBR.stopMotors();
     }
 
     /**
@@ -152,13 +247,24 @@ public class Swerve extends SubsystemBase {
         return positions;
     }
 
+    public SwerveModule[] getModules() {
+        SwerveModule[] modules = new SwerveModule[4];
+
+        modules[0] = moduleFL;
+        modules[1] = moduleFR;
+        modules[2] = moduleBL;
+        modules[3] = moduleBR;
+
+        return modules;
+    }
+
     /**
      * Gets the current swerve pose
      * 
      * @return Current {@link Pose2d} pose
      */
     public Pose2d getPose() {
-        return odometry.getPoseMeters();
+        return odometry.getEstimatedPosition();
     }
 
     /**
@@ -179,14 +285,35 @@ public class Swerve extends SubsystemBase {
         return getPose().getRotation();
     }
 
+    public double getYawRate() {
+        return pigeon.getRate();
+    }
+
+    public Field2d getField() {
+        return field;
+    }
+
+    public PPHolonomicDriveController getPpController() {
+        return ppController;
+    }
+
+    public PIDController getmSnapController() {
+        return mSnapController;
+    }
+
+    public ProfiledPIDController getmAimAssistYController() {
+        return mAimAssistYController;
+    }
+
     /**
      * Sets the heading of the swerve drive
      * 
-     * @param heading Desired {@link Rotation2d} heading
+     * @param heading Desired heading
      */
-    public void setHeading(Rotation2d heading) {
-        odometry.resetPosition(getRotation(), getModulePositions(),
-                new Pose2d(getPose().getTranslation(), heading));
+    public void setHeading(double heading) {
+        // odometry.resetPosition(getRotation(), getModulePositions(),
+        //         new Pose2d(getPose().getTranslation(), heading));
+        pigeon.setYaw(heading, Constants.CAN_TIMEOUT_MS);
     }
 
     /**
@@ -232,6 +359,22 @@ public class Swerve extends SubsystemBase {
      */
     public Pigeon2 getPigeon() {
         return pigeon;
+    }
+
+    public SwerveDrivePoseEstimator getPoseEstimator() {
+        return odometry;
+    }
+
+    public Optional<Rotation2d> getRotationTargetOverride(){
+        if (vision.hasNote()) {
+            return Optional.of(Rotation2d.fromDegrees(vision.getNoteX()));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public Alliance getAlliance() {
+        return alliance;
     }
 
     /**
@@ -292,6 +435,7 @@ public class Swerve extends SubsystemBase {
     @Override
     public void periodic() {
         odometry.update(getRotation(), getModulePositions());
+        field.setRobotPose(getPose());
     }
 
 }

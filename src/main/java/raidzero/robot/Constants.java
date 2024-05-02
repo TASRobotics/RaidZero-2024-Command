@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
 public class Constants {
@@ -103,6 +104,20 @@ public class Constants {
         public static final double ROTATION_KI = 0.0;
         public static final double ROTATION_KD = 0.0;
 
+        public static final double SNAP_CONTROLLER_KP = 0.1;
+        public static final double SNAP_CONTROLLER_KI = 0.0;
+        public static final double SNAP_CONTROLLER_KD = 0.0;
+        public static final TrapezoidProfile.Constraints SNAP_CONTROLLER_CONSTRAINTS =
+            new TrapezoidProfile.Constraints(MAX_ANGULAR_VEL_RPS, MAX_ANGULAR_VEL_RPS);
+        public static final double kSnapControllerToleranceDegrees = 2.0;
+
+        public static final double AIM_ASSIST_CONTROLLER_KP = 0.1;
+        public static final double AIM_ASSIST_CONTROLLER_KI = 0.0;
+        public static final double AIM_ASSIST_CONTROLLER_KD = 0.0;
+        public static final TrapezoidProfile.Constraints AIM_ASSIST_CONTROLLER_CONSTRAINTS =
+            new TrapezoidProfile.Constraints(REAL_MAX_VEL_MPS, REAL_MAX_VEL_MPS);
+
+
         public static final int THROTTLE_VEL_PID_SLOT = 0;
         public static final double THROTTLE_PID_UPDATE_HZ = 1000.0;
         public static final int AZIMUTH_POS_PID_SLOT = 0;
@@ -127,6 +142,8 @@ public class Constants {
             .withSupplyCurrentLimitEnable(true)
             .withSupplyCurrentThreshold(60)
             .withSupplyTimeThreshold(0.2);
+
+        public static final double TELEOP_RAMP_RATE = 0.25;
         
     }
 
@@ -143,6 +160,9 @@ public class Constants {
     }
     
     public static final String CANBUS_ID = "seCANdary";
+
+    public static final int CAN_TIMEOUT_MS = 10;
+    public static final int LONG_CAN_TIMEOUT_MS = 100;
     
     public static final boolean ENABLE_FOC = true;
 
