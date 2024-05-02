@@ -1,4 +1,4 @@
-package robot.raidzero.lib.math;
+package raidzero.robot.lib.math;
 
 public class Conversions {
     /**

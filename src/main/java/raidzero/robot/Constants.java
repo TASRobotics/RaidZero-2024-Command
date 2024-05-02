@@ -1,4 +1,4 @@
-package robot.raidzero;
+package raidzero.robot;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;

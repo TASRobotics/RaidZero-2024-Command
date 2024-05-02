@@ -1,4 +1,4 @@
-package robot.raidzero.commands;
+package raidzero.robot.commands;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -6,11 +6,11 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import robot.raidzero.Constants;
+import raidzero.robot.Constants;
 
 public class TeleopSwerve extends Command {
     
-    private robot.raidzero.subsystems.Swerve swerve;
+    private raidzero.robot.subsystems.Swerve swerve;
 
     private DoubleSupplier translationSup;
     private DoubleSupplier strafeSup;
@@ -29,7 +29,7 @@ public class TeleopSwerve extends Command {
      * @param robotCentricSup Robot-centric mode supplier
      */
     public TeleopSwerve(DoubleSupplier translationSup, DoubleSupplier strafeSup,DoubleSupplier rotationSup, BooleanSupplier robotCentricSup) {
-        this.swerve = robot.raidzero.subsystems.Swerve.getSwerve();
+        this.swerve = raidzero.robot.subsystems.Swerve.getSwerve();
         addRequirements(swerve);
 
         this.translationSup = translationSup;

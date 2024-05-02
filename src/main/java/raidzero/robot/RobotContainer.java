@@ -2,15 +2,15 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package robot.raidzero;
+package raidzero.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import robot.raidzero.commands.TeleopSwerve;
-import robot.raidzero.subsystems.Swerve;
+import raidzero.robot.commands.TeleopSwerve;
+import raidzero.robot.subsystems.Swerve;
 
 public class RobotContainer {
 	// Controllers

@@ -1,4 +1,4 @@
-package robot.raidzero.subsystems;
+package raidzero.robot.subsystems;
 
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -17,7 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import robot.raidzero.Constants;
+import raidzero.robot.Constants;
 
 public class Swerve extends SubsystemBase {
     
