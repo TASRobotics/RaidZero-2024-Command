@@ -126,7 +126,10 @@ public class SwerveModule {
      */
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-                Conversions.rotationsToMeters(throttle.getPosition().getValue(), Constants.Swerve.WHEEL_CIRCUMFERENCE),
+                Conversions.rotationsToMeters(
+                    throttle.getPosition().refresh().getValue() - throttleStart,
+                    Constants.Swerve.WHEEL_CIRCUMFERENCE
+                ),
                 Rotation2d.fromRotations(azimuth.getPosition().getValue()));
     }
 
