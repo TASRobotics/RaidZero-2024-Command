@@ -14,6 +14,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -131,6 +132,14 @@ public class SwerveModule {
                     Constants.Swerve.WHEEL_CIRCUMFERENCE
                 ),
                 Rotation2d.fromRotations(azimuth.getPosition().getValue()));
+    }
+
+    public TalonFX getThrottle() {
+        return throttle;
+    }
+
+    public TalonFX getAzimuth() {
+        return azimuth;
     }
 
     /**
