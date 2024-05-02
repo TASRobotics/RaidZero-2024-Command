@@ -21,7 +21,7 @@ public class Conversions {
 
     /**
      * @param wheelRotations Wheel position in rotations
-     * @param circumference Wheel circumference in neters
+     * @param circumference Wheel circumference in meters
      * @return Wheel distance in meters
      */
     public static double rotationsToMeters(double wheelRotations, double circumference){
@@ -36,4 +36,21 @@ public class Conversions {
     public static double metersToRotations(double wheelMeters, double circumference){
         return wheelMeters / circumference;
     }
+
+    /**
+     * @param degrees Angle in degrees
+     * @return Angle in radians
+     */
+    public static double degreesToRadians(double degrees) {
+        return Math.toRadians(degrees);
+    }
+    
+    /**
+     * @param radians Angle in radians
+     * @return Angle in degrees
+     */
+    public static double radiansToDegrees(double radians) {
+        return Math.toDegrees(radians);
+    }
+
 }
