@@ -105,16 +105,15 @@ public class Vision extends SubsystemBase {
 
         if (robotPose.getX() != 0.0 && hasAprilTag()) {
             visionPose = robotPose;
-            //TODO: Implement getPoseEstimator() in Swerve.java
-            // swerve.getPoseEstimator().setVisionMeasurementStdDevs(
-            //     VecBuilder.fill(
-            //         VisionConstants.XY_STDS,
-            //         VisionConstants.XY_STDS,
-            //         Conversions.degreesToRadians(VisionConstants.DEG_STDS)
-            //     )
-            // );
-            // swerve.getPoseEstimator()
-            //     .addVisionMeasurement(robotPose, Timer.getFPGATimestamp() - (tl/1000.0) - (cl/1000.0));
+            swerve.getPoseEstimator().setVisionMeasurementStdDevs(
+                VecBuilder.fill(
+                    VisionConstants.XY_STDS,
+                    VisionConstants.XY_STDS,
+                    Conversions.degreesToRadians(VisionConstants.DEG_STDS)
+                )
+            );
+            swerve.getPoseEstimator()
+                .addVisionMeasurement(robotPose, Timer.getFPGATimestamp() - (tl/1000.0) - (cl/1000.0));
         }
     }
 
