@@ -26,15 +26,11 @@ public class RobotContainer {
 			() -> master.getRightX(),
 			() -> false)
 		);
+    
+    configureBindings()
+  }
 
-		configureBindings();
-	}
-
-	private void configureBindings() {
-		new JoystickButton(master, XboxController.Button.kY.value).onTrue(
-			new InstantCommand(() -> swerve.zeroHeading())
-		);
-	}
+	private void configureBindings() {}
 
 	public Command getAutonomousCommand() {
 		return Commands.print("No autonomous command configured");
