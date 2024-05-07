@@ -1,4 +1,4 @@
-package frc.raidzero;
+package raidzero.robot;
 
 public class Constants {
     
