@@ -4,16 +4,31 @@
 
 package raidzero.robot;
 
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import raidzero.robot.commands.TeleopSwerve;
+import raidzero.robot.subsystems.Swerve;
 
 public class RobotContainer {
-	public RobotContainer() {
-		configureBindings();
-	}
+	// Controllers
+	private final XboxController master = new XboxController(0);
+	
+	// Subsystems
+	private final Swerve swerve = Swerve.getSwerve();
 
-	private void configureBindings() {
-	}
+	public RobotContainer() {
+		swerve.setDefaultCommand(new TeleopSwerve(
+			() -> master.getLeftY(),
+			() -> master.getLeftX(),
+			() -> master.getRightX(),
+			() -> false)
+		);
+    
+    	configureBindings();
+  	}
+
+	private void configureBindings() {}
 
 	public Command getAutonomousCommand() {
 		return Commands.print("No autonomous command configured");
