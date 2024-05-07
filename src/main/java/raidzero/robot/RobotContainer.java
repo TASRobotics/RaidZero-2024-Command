@@ -27,8 +27,8 @@ public class RobotContainer {
 			() -> false)
 		);
     
-    configureBindings()
-  }
+    	configureBindings();
+  	}
 
 	private void configureBindings() {}
 
