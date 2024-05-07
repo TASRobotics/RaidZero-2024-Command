@@ -5,6 +5,7 @@ import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -158,6 +159,33 @@ public class Constants {
         public static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(Units.inchesToMeters(-1.5), Units.inchesToMeters(218.42), new Rotation2d());
         public static final Pose2d RED_SPEAKER_POSE = new Pose2d(Units.inchesToMeters(652.73), Units.inchesToMeters(218.42), new Rotation2d());
     }
+
+    public static final class IntakeConstants {
+        public static final int INTAKE_ID = 61;
+
+        // Motor Output Constants
+        public static final InvertedValue LEADER_INVERSION = InvertedValue.Clockwise_Positive;
+        public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+
+        // Current Limit Constants
+        public static final double SUPPLY_CURRENT_LIMIT = 20.0;
+        public static final boolean SUPPLY_CURRENT_ENABLE = true;
+        public static final double SUPPLY_CURRENT_THRESHOLD = 30.0;
+        public static final double SUPPLY_TIME_THRESHOLD = 0.2;
+
+        // Open Loop Ramp Rate Constants
+        public static final double VOLTAGE_RAMP_RATE = 0.125;
+
+        public static final double BEAM_BRAKE_TIME = 0.05;
+    }
+
+    public static final class ConveyorConstants {
+        public static final int CONVEYOR_ID = 11;
+
+        public static final int CURRENT_LIMIT = 30;
+        public static final IdleMode IDLE_MODE = IdleMode.kBrake;
+        public static final boolean INVERSION = false;
+    }
     
     public static final String CANBUS_ID = "seCANdary";
 
@@ -165,6 +193,8 @@ public class Constants {
     public static final int LONG_CAN_TIMEOUT_MS = 100;
     
     public static final boolean ENABLE_FOC = true;
+
+    public static final double MAX_MOTOR_VOLTAGE = 12.0;
 
     public static final double STICK_DEADBAND = 0.02;
 
