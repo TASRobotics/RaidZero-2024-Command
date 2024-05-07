@@ -45,20 +45,14 @@ public class Vision extends SubsystemBase {
     public double getSpeakerDistance(Alliance alliance) {
         Pose2d speakerPose = alliance ==
             Alliance.Blue ? VisionConstants.BLUE_SPEAKER_POSE : VisionConstants.RED_SPEAKER_POSE;
-        // if (!hasAprilTag()){
-        //     return 0;
-        // }
-        double testReturn = swerve.getPose().minus(speakerPose).getTranslation().getNorm();
+
         return swerve.getPose().getTranslation().getDistance(speakerPose.getTranslation());
     }
 
     public Rotation2d getSpeakerAngle(Alliance alliance) {
         Pose2d speakerPose = alliance ==
             Alliance.Blue ? VisionConstants.BLUE_SPEAKER_POSE : VisionConstants.RED_SPEAKER_POSE;
-        // if (!hasAprilTag()){
-        //     return null;
-        // }
-        Rotation2d testReturn = swerve.getPose().minus(speakerPose).getTranslation().getAngle();
+
         return Rotation2d.fromRadians(
             Math.atan2(swerve.getPose().getY() - speakerPose.getY(),
             swerve.getPose().getX() - speakerPose.getX())
