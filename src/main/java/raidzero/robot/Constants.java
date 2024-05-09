@@ -42,10 +42,11 @@ public class Constants {
         public static final double BR_AZIMUTH_OFFSET = -0.955566 /*+ 0.5*/;
         
         //* Dimensions & conversions
-        public static final double TRACK_WIDTH = Units.inchesToMeters(22.75);
-        public static final double WHEEL_BASE = Units.inchesToMeters(22.75);
+        public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);
+        public static final double WHEEL_BASE = Units.inchesToMeters(18.75);
         public static final double WHEEL_DIAMETER_METERS = 0.1016;
         public static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER_METERS * Math.PI;
+        public static final double DRIVE_BASE_RADIUS = Math.sqrt(TRACK_WIDTH * TRACK_WIDTH + WHEEL_BASE * WHEEL_BASE) / 2.0;
         
         public static final double THROTTLE_GEAR_RATIO = (6.12 / 1.0);
         public static final double ROTOR_GEAR_RATIO = ((150.0 / 7.0) / 1.0);
