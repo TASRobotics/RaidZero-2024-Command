@@ -93,9 +93,9 @@ public class Intake extends SubsystemBase {
     }
 
     /**
-     * Gets the Intake object.
+     * Gets the {@link Intake} subsystem.
      * 
-     * @return Intake object.
+     * @return {@link Intake} subsystem.
      */
     public static Intake getIntake() {
         return intake;
