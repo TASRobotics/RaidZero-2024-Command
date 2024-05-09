@@ -107,7 +107,7 @@ public class Swerve extends SubsystemBase {
                 Constants.Swerve.ROTATION_KD
             ),
             Constants.Swerve.MAX_VEL_MPS,
-            0.4
+            Constants.Swerve.DRIVE_BASE_RADIUS
         );
 
         mSnapController = new PIDController(
