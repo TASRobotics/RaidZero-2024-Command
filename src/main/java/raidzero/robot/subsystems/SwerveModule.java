@@ -24,30 +24,32 @@ import raidzero.robot.lib.math.Conversions;
 
 public class SwerveModule {
     
-    private TalonFX throttle;
-    private TalonFX azimuth;
-
     private CANcoder azimuthEncoder;
+
     private double throttleStart;
 
     private final DutyCycleOut throttleDutyCycleOut = new DutyCycleOut(0.0)
         .withEnableFOC(Constants.ENABLE_FOC);
 
-    private final VelocityVoltage throttleVelocity = new VelocityVoltage(0.0)
-        .withEnableFOC(Constants.ENABLE_FOC)
-        .withSlot(Constants.Swerve.THROTTLE_VEL_PID_SLOT)
-        .withUpdateFreqHz(Constants.Swerve.THROTTLE_PID_UPDATE_HZ);
-
     private final PositionVoltage azimuthPosition = new PositionVoltage(0.0)
         .withEnableFOC(Constants.ENABLE_FOC)
         .withSlot(Constants.Swerve.AZIMUTH_POS_PID_SLOT)
         .withUpdateFreqHz(Constants.Swerve.AZIMUTH_PID_UPDATE_HZ);
-
+ 
     private final SimpleMotorFeedforward throttleFF = new SimpleMotorFeedforward(
         Constants.Swerve.THROTTLE_KS,
         Constants.Swerve.THROTTLE_KV,
         Constants.Swerve.THROTTLE_KA
     );
+
+    private TalonFX throttle;
+    private TalonFX azimuth;
+        
+    private final VelocityVoltage throttleVelocity = new VelocityVoltage(0.0)
+        .withEnableFOC(Constants.ENABLE_FOC)
+        .withSlot(Constants.Swerve.THROTTLE_VEL_PID_SLOT)
+        .withUpdateFreqHz(Constants.Swerve.THROTTLE_PID_UPDATE_HZ);
+
 
     /**
      * Constructs a new SwerveModule object
@@ -71,6 +73,60 @@ public class SwerveModule {
         stopMotors();
     }
 
+    //* Getters
+    /**
+     * Gets the azimuth motor.
+     * 
+     * @return {@link TalonFX} motor
+     */
+    public TalonFX getAzimuth() {
+        return azimuth;
+    }
+
+    /**
+     * Gets azimuth encoder value.
+     * 
+     * @return Azimuth encoder rotation as {@link Rotation2d}
+     */
+    public Rotation2d getCANCoderRotations() {
+        return Rotation2d.fromRotations(azimuthEncoder.getAbsolutePosition().getValue());
+    }
+
+    /**
+     * Gets the current position of the module.
+     * 
+     * @return Current {@link SwerveModulePosition}
+     */
+    public SwerveModulePosition getPosition() {
+        return new SwerveModulePosition(
+                Conversions.rotationsToMeters(
+                    throttle.getPosition().refresh().getValue() - throttleStart,
+                    Constants.Swerve.WHEEL_CIRCUMFERENCE
+                ),
+                Rotation2d.fromRotations(azimuth.getPosition().getValue()));
+    }
+
+    /**
+     * Gets the current state of the module.
+     * 
+     * @return Current {@link SwerveModuleState}
+     */
+    public SwerveModuleState getState() {
+        return new SwerveModuleState(
+                Conversions.RPSToMPS(throttle.getVelocity().getValue(), Constants.Swerve.WHEEL_CIRCUMFERENCE),
+                Rotation2d.fromRotations(azimuth.getPosition().getValue()));
+    }
+
+    /**
+     * Gets the throttle motor.
+     * 
+     * @return {@link TalonFX} motor
+     */
+    public TalonFX getThrottle() {
+        return throttle;
+    }
+
+    //* Setters
     /**
      * Sets the desired state of the module.
      * 
@@ -92,53 +148,12 @@ public class SwerveModule {
         }
     }
 
-    /**
-     * Gets azimuth encoder value.
-     * 
-     * @return Azimuth encoder rotation as {@link Rotation2d}
-     */
-    public Rotation2d getCANCoderRotations() {
-        return Rotation2d.fromRotations(azimuthEncoder.getAbsolutePosition().getValue());
-    }
-    
+    //* Other methods    
     /**
      * Resets azimuth motor to azimuth encoder position
      */
     public void resetToAbsolute() {
         azimuth.setPosition(azimuthEncoder.getAbsolutePosition().getValue());
-    }
-
-    /**
-     * Gets the current state of the module.
-     * 
-     * @return Current {@link SwerveModuleState}
-     */
-    public SwerveModuleState getState() {
-        return new SwerveModuleState(
-                Conversions.RPSToMPS(throttle.getVelocity().getValue(), Constants.Swerve.WHEEL_CIRCUMFERENCE),
-                Rotation2d.fromRotations(azimuth.getPosition().getValue()));
-    }
-
-    /**
-     * Gets the current position of the module.
-     * 
-     * @return Current {@link SwerveModulePosition}
-     */
-    public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(
-                Conversions.rotationsToMeters(
-                    throttle.getPosition().refresh().getValue() - throttleStart,
-                    Constants.Swerve.WHEEL_CIRCUMFERENCE
-                ),
-                Rotation2d.fromRotations(azimuth.getPosition().getValue()));
-    }
-
-    public TalonFX getThrottle() {
-        return throttle;
-    }
-
-    public TalonFX getAzimuth() {
-        return azimuth;
     }
 
     /**

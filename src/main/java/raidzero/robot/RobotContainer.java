@@ -15,7 +15,7 @@ public class RobotContainer {
 	private final XboxController master = new XboxController(0);
 	
 	// Subsystems
-	private final Swerve swerve = Swerve.getSwerve();
+	private final Swerve swerve = Swerve.getSystem();
 
 	public RobotContainer() {
 		swerve.setDefaultCommand(new TeleopSwerve(

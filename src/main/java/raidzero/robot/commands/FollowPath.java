@@ -16,19 +16,28 @@ import raidzero.robot.subsystems.Vision;
 
 public class FollowPath extends Command {
 
-    private Swerve swerve = Swerve.getSwerve();
-    private Vision vision = Vision.getVision();
-
-    private PPHolonomicDriveController ppController = swerve.getPpController();
-    private ProfiledPIDController aimAssistController = swerve.getmAimAssistYController();
-    private Alliance alliance = swerve.getAlliance();
-
+    private Alliance alliance;
+    
     private boolean overridePathingRotationSpeakerAim, overridePathingRotationNoteAim;
-
+    
     private PathPlannerTrajectory path;
+    private PPHolonomicDriveController ppController;
+    private ProfiledPIDController aimAssistController;
+    
+    private Swerve swerve;
 
     private Timer timer;
+    
+    private Vision vision;
 
+    /**
+     * Constructs a FollowPath command.
+     * 
+     * @param path {@link PathPlannerTrajectory} trajectory to follow
+     * @param isFirstPath Whether this is the first path
+     * @param overridePathingRotationSpeakerAim Whether to override pathing rotation with speaker aim
+     * @param overridePathingRotationNoteAim Whether to override pathing rotation with note aim
+     */
     public FollowPath(PathPlannerTrajectory path, boolean isFirstPath, boolean overridePathingRotationSpeakerAim, boolean overridePathingRotationNoteAim) {
         this.path = path;
         this.overridePathingRotationSpeakerAim = overridePathingRotationSpeakerAim;
@@ -42,6 +51,15 @@ public class FollowPath extends Command {
                 )
             );
         }
+
+        this.swerve = Swerve.getSystem();
+        this.vision = Vision.getSystem();
+
+        this.alliance = swerve.getAlliance();
+        this.aimAssistController = swerve.getAimAssistYController();
+        this.ppController = swerve.getPpController();
+
+        addRequirements(swerve);
     }
 
     @Override
