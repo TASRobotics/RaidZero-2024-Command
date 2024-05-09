@@ -5,3 +5,4 @@
  - Class method order: Getters, setters, other methods (alphabetically)
  - Member def order: Grouped by types & alphabetical, but Talon configs then subsystem static object getter comes last
  - Subsystem constructors are private, will be called within class
+ - Import statements: let Java RedHat extension take care of it
