@@ -1,6 +1,16 @@
 package raidzero.robot.subsystems;
 
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import com.ctre.phoenix6.hardware.Pigeon2;
+
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,11 +22,82 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import raidzero.robot.Constants.VisionConstants;
 import raidzero.robot.lib.math.Conversions;
 import raidzero.robot.wrappers.LimelightHelper;
+import raidzero.robot.wrappers.LimelightHelper.PoseEstimate;
 import raidzero.robot.wrappers.LimelightHelper.Results;
 
-public class Vision extends SubsystemBase {
+public class Vision extends SubsystemBase implements Runnable{
 
-    private static final Swerve swerve = Swerve.getSwerve();
+    private static final Swerve swerve = Swerve.getInstance();
+
+    private static Pigeon2 pigeon = swerve.getPigeon();
+
+    private final BlockingQueue<Object> queue = new LinkedBlockingQueue<>();
+
+    private static Vision instance;
+    private static Lock lock = new ReentrantLock();
+    private static PoseEstimate bestPoseEstimate;
+    private static PoseEstimate[] rawPoseEstimates;
+
+
+    public static synchronized Vision getInstance() {
+        if (instance == null) {
+            instance = new Vision();
+            new Thread(instance).start();
+        }
+        return instance;
+    }
+
+    public static void setSharedVariable(int value) {
+        lock.lock();
+        try {
+            sharedVariable = value;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public static int getSharedVariable() {
+        lock.lock();
+        try {
+            return sharedVariable;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void run() {
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                queue.take(); // Wait for a signal
+                // Perform calculations
+                updatePose();
+                updateNote();
+
+                SmartDashboard.putNumber("Vision X", getVisionPose().getX());
+                SmartDashboard.putNumber("Vision Y", getVisionPose().getY());
+                SmartDashboard.putBoolean("Has April Tag", hasAprilTag());
+                SmartDashboard.putNumber("Note X", getNoteX());
+                SmartDashboard.putNumber("Note Y", getNoteY());
+                SmartDashboard.putNumber("Note Area", getNoteA());
+                SmartDashboard.putBoolean("Has Note", hasNote());
+                SmartDashboard.putNumber("Speaker Distance", getSpeakerDistance(alliance));
+
+
+                SmartDashboard.putNumber("Speaker Angle", getSpeakerAngle(alliance).getDegrees());
+
+                
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+        
+
+
+        // Code to be executed in its own thread
+        // For example, you can call setSharedVariable() here to update the shared variable
+
 
     private Alliance alliance;
 
@@ -32,11 +113,14 @@ public class Vision extends SubsystemBase {
 
     private static Vision vision = new Vision();
 
-    public Vision() {
-        alliance = DriverStation.getAlliance().get();
 
-        LimelightHelper.getLatestResults(VisionConstants.APRILTAG_CAM_NAME);
+    private Vision() {
+        alliance = DriverStation.getAlliance().get();
+        for (String limelight : VisionConstants.LIMELIGHTS) {
+            LimelightHelper.getLatestResults(limelight);
+        }
     }
+
 
     public Pose2d getVisionPose(){
         return visionPose;
@@ -76,7 +160,12 @@ public class Vision extends SubsystemBase {
     }
 
     public Boolean hasAprilTag(){
-        return LimelightHelper.getTV(VisionConstants.APRILTAG_CAM_NAME);
+        for (String limelight: VisionConstants.LIMELIGHTS){
+            if (LimelightHelper.getTV(limelight)){
+                return true;
+            }
+        }
+        return false;
     }
 
     public void updateNote(){
@@ -95,13 +184,36 @@ public class Vision extends SubsystemBase {
         }
     }
 
-    public void updatePose() {
-        Results results = 
-            LimelightHelper.getLatestResults(VisionConstants.APRILTAG_CAM_NAME).targetingResults;
+    public PoseEstimate findBestPose(List<PoseEstimate> poses) {
+    PoseEstimate bestPose = null;
+    double bestScore = Double.NEGATIVE_INFINITY;
 
-        Pose2d robotPose = results.getBotPose2d_wpiBlue();
-        double tl = results.latency_pipeline;
-        double cl = results.latency_capture;
+    for (PoseEstimate pose : poses) {
+        double distance = pose.avgTagDist
+        long timeDifference = pose.; // Assuming PoseEstimate has a getTimestamp method
+
+        // Calculate score based on distance and timestamp
+        // This is just an example, you might want to adjust the formula to fit your needs
+        double score = 1 / distance - timeDifference;
+
+        if (score > bestScore) {
+            bestScore = score;
+            bestPose = pose;
+        }
+    }
+
+    return bestPose;
+}
+
+    public void updatePose() {
+
+        for(int llnum = 0; llnum< rawPoseEstimates.length; llnum++){
+            LimelightHelper.SetRobotOrientation("limelight", pigeon.getAngle(), 0, 0, 0, 0, 0);
+            PoseEstimate poseEstimate = LimelightHelper.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.LIMELIGHTS[llnum]);
+            rawPoseEstimates[llnum] = poseEstimate;
+        }
+        
+
 
         if (robotPose.getX() != 0.0 && hasAprilTag()) {
             visionPose = robotPose;
@@ -117,28 +229,31 @@ public class Vision extends SubsystemBase {
         }
     }
 
-    public static Vision getVision() {
-        return vision;
-    }
+
 
     @Override
     public void periodic() {
-        updatePose();
-        updateNote();
+        queue.offer(new Object()); // Send a signal
+    }
 
-        SmartDashboard.putNumber("Vision X", getVisionPose().getX());
-        SmartDashboard.putNumber("Vision Y", getVisionPose().getY());
-        SmartDashboard.putBoolean("Has April Tag", hasAprilTag());
-        SmartDashboard.putNumber("Note X", getNoteX());
-        SmartDashboard.putNumber("Note Y", getNoteY());
-        SmartDashboard.putNumber("Note Area", getNoteA());
-        SmartDashboard.putBoolean("Has Note", hasNote());
-        SmartDashboard.putNumber("Speaker Distance", getSpeakerDistance(alliance));
+    public static Swerve getSwerve() {
+        return swerve;
+    }
 
-        try {
-            SmartDashboard.putNumber("Speaker Angle", getSpeakerAngle(alliance).getDegrees());
-        } catch (Exception e) {
-        }
+    public Alliance getAlliance() {
+        return alliance;
+    }
+
+    public MedianFilter getNoteXFilter() {
+        return noteXFilter;
+    }
+
+    public MedianFilter getNoteYFilter() {
+        return noteYFilter;
+    }
+
+    public MedianFilter getNoteAFilter() {
+        return noteAFilter;
     }
     
 }

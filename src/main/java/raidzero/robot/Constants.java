@@ -1,5 +1,8 @@
 package raidzero.robot;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -149,7 +152,7 @@ public class Constants {
     }
 
     public static final class VisionConstants {
-        public static final String APRILTAG_CAM_NAME = "limelight";
+        public static final Map<String, Integer> LIMELIGHT_MAP = Map.of("front", 0, "left", 1, "back", 2, "right", 3);
         public static final double XY_STDS = 0.1;
         public static final double DEG_STDS = 1;
 

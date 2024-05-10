@@ -174,7 +174,7 @@ public class Swerve extends SubsystemBase {
                 visionMeasurementStdDevs
             );
         } catch (Exception e) {
-            System.out.println("Cholesky decomposition failed, reverting...:");
+            System.out.println("Unable to add vision measurement to odometry.");
         }
     }
 
@@ -427,13 +427,14 @@ public class Swerve extends SubsystemBase {
      * 
      * @return Swerve object
      */
-    public static Swerve getSwerve() {
+    public static Swerve getInstance() {
         return swerve;
     }
 
     @Override
     public void periodic() {
         odometry.update(getRotation(), getModulePositions());
+        vision.getVisionPose().ifPresent(pose -> addVisionMeasurement(pose, Timer.getFPGATimestamp(), new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.2, 0.2, 0.1)));
         field.setRobotPose(getPose());
     }
 
