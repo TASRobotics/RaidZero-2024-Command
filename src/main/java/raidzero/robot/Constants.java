@@ -155,6 +155,7 @@ public class Constants {
         public static final String[] LIMELIGHTS = {"front", "left", "back", "right"};
         public static final double XY_STDS = 0.1;
         public static final double DEG_STDS = 1;
+        public static final double LOOP_TIME = 0.01;
 
         public static final String NOTE_CAM_NAME = "limelight-object";
         public static final int NOTE_FILTER_SIZE = 5;

@@ -1,5 +1,7 @@
 package raidzero.robot.subsystems;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -9,19 +11,32 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.Num;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.KalmanFilter;
 import edu.wpi.first.math.estimator.PoseEstimator;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.numbers.N0;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import raidzero.robot.Constants;
 import raidzero.robot.Constants.VisionConstants;
 import raidzero.robot.lib.math.Conversions;
 import raidzero.robot.wrappers.LimelightHelper;
+import raidzero.robot.wrappers.WeightedAverageFilter;
 import raidzero.robot.wrappers.LimelightHelper.PoseEstimate;
 import raidzero.robot.wrappers.LimelightHelper.Results;
 
@@ -33,11 +48,15 @@ public class Vision extends SubsystemBase implements Runnable{
 
     private final BlockingQueue<Object> queue = new LinkedBlockingQueue<>();
 
+    private LinearFilter xFilter;
+    private LinearFilter yFilter;
+    private LinearFilter thetaFilter;
+
+
     private static Vision instance;
     private static Lock lock = new ReentrantLock();
     private static PoseEstimate bestPoseEstimate;
     private static PoseEstimate[] rawPoseEstimates;
-
 
     public static synchronized Vision getInstance() {
         if (instance == null) {
@@ -68,12 +87,13 @@ public class Vision extends SubsystemBase implements Runnable{
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
+            double startTime = Timer.getFPGATimestamp();
+
             try {
-                queue.take(); // Wait for a signal
                 // Perform calculations
                 updatePose();
                 updateNote();
-
+    
                 SmartDashboard.putNumber("Vision X", getVisionPose().getX());
                 SmartDashboard.putNumber("Vision Y", getVisionPose().getY());
                 SmartDashboard.putBoolean("Has April Tag", hasAprilTag());
@@ -82,11 +102,20 @@ public class Vision extends SubsystemBase implements Runnable{
                 SmartDashboard.putNumber("Note Area", getNoteA());
                 SmartDashboard.putBoolean("Has Note", hasNote());
                 SmartDashboard.putNumber("Speaker Distance", getSpeakerDistance(alliance));
-
-
                 SmartDashboard.putNumber("Speaker Angle", getSpeakerAngle(alliance).getDegrees());
-
-                
+    
+                double endTime = Timer.getFPGATimestamp();
+                double elapsedTime = endTime - startTime;
+    
+                if (elapsedTime > VisionConstants.LOOP_TIME) { // 0.01 seconds = 10 milliseconds
+                    System.out.println("Loop overrun: " + (elapsedTime - 0.01) + " seconds");
+                }
+    
+                // Sleep for the remaining time, if any
+                double sleepTime = VisionConstants.LOOP_TIME - elapsedTime;
+                if (sleepTime > 0) {
+                    Thread.sleep((long)(sleepTime * 1000)); // Convert to milliseconds
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -184,39 +213,53 @@ public class Vision extends SubsystemBase implements Runnable{
         }
     }
 
-    public PoseEstimate findBestPose(List<PoseEstimate> poses) {
-    PoseEstimate bestPose = null;
-    double bestScore = Double.NEGATIVE_INFINITY;
-
-    for (PoseEstimate pose : poses) {
-        double distance = pose.avgTagDist
-        long timeDifference = pose.; // Assuming PoseEstimate has a getTimestamp method
-
-        // Calculate score based on distance and timestamp
-        // This is just an example, you might want to adjust the formula to fit your needs
-        double score = 1 / distance - timeDifference;
-
-        if (score > bestScore) {
-            bestScore = score;
-            bestPose = pose;
+    public void updatePose() {
+        if (rawPoseEstimates.length == 0)  return;
+        // Sort the rawPoseEstimates by timestamp
+        Arrays.sort(rawPoseEstimates, Comparator.comparingDouble(pose -> pose.timestampSeconds));
+    
+        // Initialize the filters with the first pose estimate
+        PoseEstimate initialPose = rawPoseEstimates[0];
+        xFilter = LinearFilter.singlePoleIIR(1.0, initialPose.pose.getX());
+        yFilter = LinearFilter.singlePoleIIR(1.0, initialPose.pose.getY());
+        thetaFilter = LinearFilter.singlePoleIIR(1.0, initialPose.pose.getRotation().getRadians());
+    
+        // Update the filters with each subsequent pose estimate
+        for (int i = 1; i < rawPoseEstimates.length; i++) {
+            PoseEstimate pose = rawPoseEstimates[i];
+    
+            // Calculate the gain based on the timestamp and the distance from the target
+            double timeDifference = pose.timestampSeconds - initialPose.timestampSeconds;
+            double distanceRatio = pose.avgTagDist/(pose.tagCount * initialPose.avgTagDist);
+            double gain = Math.min(1.0, timeDifference * distanceRatio);
+    
+            // Update the filters
+            xFilter.calculate(pose.getX() * gain);
+            yFilter.calculate(pose.getY() * gain);
+            thetaFilter.calculate(pose.getTheta() * gain);
         }
     }
 
-    return bestPose;
-}
+
 
     public void updatePose() {
-
-        for(int llnum = 0; llnum< rawPoseEstimates.length; llnum++){
-            LimelightHelper.SetRobotOrientation("limelight", pigeon.getAngle(), 0, 0, 0, 0, 0);
-            PoseEstimate poseEstimate = LimelightHelper.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.LIMELIGHTS[llnum]);
-            rawPoseEstimates[llnum] = poseEstimate;
-        }
         
+        WeightedAverageFilter filteredPose;
+        double latestTimestamp = Timer.getFPGATimestamp();
+        double lastTimeStamp = 0;
 
+        for (String limelight:VisionConstants.LIMELIGHTS) {
+            LimelightHelper.SetRobotOrientation(limelight, pigeon.getAngle(), 0, 0, 0, 0, 0);
+            PoseEstimate poseEstimate = LimelightHelper.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
+            double weight = poseEstimate.tagCount / ( (latestTimestamp - poseEstimate.timestampSeconds) * poseEstimate.avgTagDist);
+            filteredPose.addValue(poseEstimate.pose, weight);
+            if (poseEstimate.timestampSeconds > lastTimeStamp) {
+                lastTimeStamp = poseEstimate.timestampSeconds;
+            }
+        }
 
-        if (robotPose.getX() != 0.0 && hasAprilTag()) {
-            visionPose = robotPose;
+        if (filteredPose.getAverage().getX() != 0.0 && hasAprilTag()) {
+            visionPose = filteredPose.getAverage();
             swerve.getPoseEstimator().setVisionMeasurementStdDevs(
                 VecBuilder.fill(
                     VisionConstants.XY_STDS,
@@ -224,8 +267,7 @@ public class Vision extends SubsystemBase implements Runnable{
                     Conversions.degreesToRadians(VisionConstants.DEG_STDS)
                 )
             );
-            swerve.getPoseEstimator()
-                .addVisionMeasurement(robotPose, Timer.getFPGATimestamp() - (tl/1000.0) - (cl/1000.0));
+            swerve.getPoseEstimator().reset(fusedPose);
         }
     }
 

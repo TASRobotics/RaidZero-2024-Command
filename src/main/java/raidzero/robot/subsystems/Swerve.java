@@ -37,7 +37,7 @@ public class Swerve extends SubsystemBase {
 
     private SwerveDrivePoseEstimator odometry;
 
-    private Vision vision = Vision.getVision();
+    private Vision vision = Vision.getInstance();
 
     private Field2d field;
 

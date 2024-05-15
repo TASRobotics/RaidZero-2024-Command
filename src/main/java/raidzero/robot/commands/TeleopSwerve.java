@@ -29,7 +29,7 @@ public class TeleopSwerve extends Command {
      * @param robotCentricSup Robot-centric mode supplier
      */
     public TeleopSwerve(DoubleSupplier translationSup, DoubleSupplier strafeSup,DoubleSupplier rotationSup, BooleanSupplier robotCentricSup) {
-        this.swerve = raidzero.robot.subsystems.Swerve.getSwerve();
+        this.swerve = raidzero.robot.subsystems.Swerve.getInstance();
         addRequirements(swerve);
 
         this.translationSup = translationSup;
