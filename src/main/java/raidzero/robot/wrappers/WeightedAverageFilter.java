@@ -41,6 +41,10 @@ public class WeightedAverageFilter {
         }
     }
 
+    public double getWeightSum() {
+        return weightSum;
+    }
+
     /**
      * Clears all values from the filter.
      */

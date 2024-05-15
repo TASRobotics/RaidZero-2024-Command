@@ -46,17 +46,12 @@ public class Vision extends SubsystemBase implements Runnable{
 
     private static Pigeon2 pigeon = swerve.getPigeon();
 
-    private final BlockingQueue<Object> queue = new LinkedBlockingQueue<>();
-
-    private LinearFilter xFilter;
-    private LinearFilter yFilter;
-    private LinearFilter thetaFilter;
+    
+    private static Pose2d visionPose = new Pose2d(); 
+    private static double visionWeight; // Declare the visionWeight variable
 
 
     private static Vision instance;
-    private static Lock lock = new ReentrantLock();
-    private static PoseEstimate bestPoseEstimate;
-    private static PoseEstimate[] rawPoseEstimates;
 
     public static synchronized Vision getInstance() {
         if (instance == null) {
@@ -66,23 +61,24 @@ public class Vision extends SubsystemBase implements Runnable{
         return instance;
     }
 
-    public static void setSharedVariable(int value) {
-        lock.lock();
-        try {
-            sharedVariable = value;
-        } finally {
-            lock.unlock();
-        }
+   
+    private static void setVisionPose(Pose2d pose) {
+        visionPose = pose;
     }
 
-    public static int getSharedVariable() {
-        lock.lock();
-        try {
-            return sharedVariable;
-        } finally {
-            lock.unlock();
-        }
+    private static void setVisionWeight(double weight) {
+        visionWeight = weight; // Assign the weight to the visionWeight variable
     }
+
+    public static Pose2d getVisionPose(){
+        return visionPose;
+    }
+
+    public static double getVisionWeight() {
+        return visionWeight; // Return the visionWeight variable
+    }
+
+
 
     @Override
     public void run() {
@@ -130,7 +126,6 @@ public class Vision extends SubsystemBase implements Runnable{
 
     private Alliance alliance;
 
-    private Pose2d visionPose = new Pose2d();
 
     private MedianFilter noteXFilter = new MedianFilter(VisionConstants.NOTE_FILTER_SIZE);
     private MedianFilter noteYFilter = new MedianFilter(VisionConstants.NOTE_FILTER_SIZE);
@@ -151,9 +146,7 @@ public class Vision extends SubsystemBase implements Runnable{
     }
 
 
-    public Pose2d getVisionPose(){
-        return visionPose;
-    }
+
 
     public double getSpeakerDistance(Alliance alliance) {
         Pose2d speakerPose = alliance ==
@@ -213,38 +206,19 @@ public class Vision extends SubsystemBase implements Runnable{
         }
     }
 
-    public void updatePose() {
-        if (rawPoseEstimates.length == 0)  return;
-        // Sort the rawPoseEstimates by timestamp
-        Arrays.sort(rawPoseEstimates, Comparator.comparingDouble(pose -> pose.timestampSeconds));
-    
-        // Initialize the filters with the first pose estimate
-        PoseEstimate initialPose = rawPoseEstimates[0];
-        xFilter = LinearFilter.singlePoleIIR(1.0, initialPose.pose.getX());
-        yFilter = LinearFilter.singlePoleIIR(1.0, initialPose.pose.getY());
-        thetaFilter = LinearFilter.singlePoleIIR(1.0, initialPose.pose.getRotation().getRadians());
-    
-        // Update the filters with each subsequent pose estimate
-        for (int i = 1; i < rawPoseEstimates.length; i++) {
-            PoseEstimate pose = rawPoseEstimates[i];
-    
-            // Calculate the gain based on the timestamp and the distance from the target
-            double timeDifference = pose.timestampSeconds - initialPose.timestampSeconds;
-            double distanceRatio = pose.avgTagDist/(pose.tagCount * initialPose.avgTagDist);
-            double gain = Math.min(1.0, timeDifference * distanceRatio);
-    
-            // Update the filters
-            xFilter.calculate(pose.getX() * gain);
-            yFilter.calculate(pose.getY() * gain);
-            thetaFilter.calculate(pose.getTheta() * gain);
-        }
-    }
 
 
 
+    /**
+     * Updates the pose estimation using data from multiple Limelight cameras.
+     * This method sets the robot orientation for each Limelight camera, retrieves the pose estimate,
+     * calculates the weight for each pose estimate, and applies a weighted average filter to obtain
+     * the filtered pose. If a valid filtered pose is obtained and the robot has an AprilTag,
+     * the vision pose is updated and the pose estimator is reset.
+     */
     public void updatePose() {
         
-        WeightedAverageFilter filteredPose;
+        WeightedAverageFilter filteredPose  = new WeightedAverageFilter(); // Initialize filteredPose variable;
         double latestTimestamp = Timer.getFPGATimestamp();
         double lastTimeStamp = 0;
 
@@ -258,25 +232,14 @@ public class Vision extends SubsystemBase implements Runnable{
             }
         }
 
-        if (filteredPose.getAverage().getX() != 0.0 && hasAprilTag()) {
-            visionPose = filteredPose.getAverage();
-            swerve.getPoseEstimator().setVisionMeasurementStdDevs(
-                VecBuilder.fill(
-                    VisionConstants.XY_STDS,
-                    VisionConstants.XY_STDS,
-                    Conversions.degreesToRadians(VisionConstants.DEG_STDS)
-                )
-            );
-            swerve.getPoseEstimator().reset(fusedPose);
+        if (filteredPose.getAverage().getX() != 0.0 && pigeon.getRate() < VisionConstants.MAX_ROTATION_RATE && hasAprilTag()) {
+            setVisionPose(filteredPose.getAverage());
+            setVisionWeight(filteredPose.getWeightSum());
         }
     }
 
 
 
-    @Override
-    public void periodic() {
-        queue.offer(new Object()); // Send a signal
-    }
 
     public static Swerve getSwerve() {
         return swerve;
