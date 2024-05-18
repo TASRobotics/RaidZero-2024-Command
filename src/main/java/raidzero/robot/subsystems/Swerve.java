@@ -434,6 +434,7 @@ public class Swerve extends SubsystemBase {
     @Override
     public void periodic() {
         odometry.update(getRotation(), getModulePositions());
+        pose.addVisionMeasurement(vision.getVisionPose(), Timer.getFPGATimestamp());
         vision.getVisionPose().ifPresent(pose -> addVisionMeasurement(pose, Timer.getFPGATimestamp(), new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.2, 0.2, 0.1)));
         field.setRobotPose(getPose());
     }

@@ -62,19 +62,19 @@ public class Vision extends SubsystemBase implements Runnable{
     }
 
    
-    private static void setVisionPose(Pose2d pose) {
+    private static synchronized  void setVisionPose(Pose2d pose) {
         visionPose = pose;
     }
 
-    private static void setVisionWeight(double weight) {
+    private static synchronized void setVisionWeight(double weight) {
         visionWeight = weight; // Assign the weight to the visionWeight variable
     }
 
-    public static Pose2d getVisionPose(){
+    public synchronized Pose2d getVisionPose(){
         return visionPose;
     }
 
-    public static double getVisionWeight() {
+    public static synchronized double getVisionWeight() {
         return visionWeight; // Return the visionWeight variable
     }
 
@@ -219,22 +219,18 @@ public class Vision extends SubsystemBase implements Runnable{
     public void updatePose() {
         
         WeightedAverageFilter filteredPose  = new WeightedAverageFilter(); // Initialize filteredPose variable;
-        double latestTimestamp = Timer.getFPGATimestamp();
-        double lastTimeStamp = 0;
 
         for (String limelight:VisionConstants.LIMELIGHTS) {
             LimelightHelper.SetRobotOrientation(limelight, pigeon.getAngle(), 0, 0, 0, 0, 0);
             PoseEstimate poseEstimate = LimelightHelper.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
-            double weight = poseEstimate.tagCount / ( (latestTimestamp - poseEstimate.timestampSeconds) * poseEstimate.avgTagDist);
-            filteredPose.addValue(poseEstimate.pose, weight);
-            if (poseEstimate.timestampSeconds > lastTimeStamp) {
-                lastTimeStamp = poseEstimate.timestampSeconds;
-            }
+            filteredPose.addValue(poseEstimate);
         }
 
-        if (filteredPose.getAverage().getX() != 0.0 && pigeon.getRate() < VisionConstants.MAX_ROTATION_RATE && hasAprilTag()) {
-            setVisionPose(filteredPose.getAverage());
-            setVisionWeight(filteredPose.getWeightSum());
+        if (filteredPose.getWeightSum() > 0.0 && pigeon.getRate() < VisionConstants.MAX_ROTATION_RATE && hasAprilTag()) {
+            setVisionPoseEstimate(filteredPose.getAverage());
+        } else {
+            setVisionPose(new Pose2d());
+            setVisionWeight(0.0);
         }
     }
 
