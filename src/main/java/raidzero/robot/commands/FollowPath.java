@@ -17,7 +17,7 @@ import raidzero.robot.subsystems.Vision;
 public class FollowPath extends Command {
 
     private Swerve swerve = Swerve.getInstance();
-    private Vision vision = Vision.getVision();
+    private Vision vision = Vision.getInstance();
 
     private PPHolonomicDriveController ppController = swerve.getPpController();
     private ProfiledPIDController aimAssistController = swerve.getmAimAssistYController();

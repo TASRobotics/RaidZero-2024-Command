@@ -153,9 +153,8 @@ public class Constants {
 
     public static final class VisionConstants {
         public static final String[] LIMELIGHTS = {"front", "left", "back", "right"};
-        public static final double XY_STDS = 0.1;
-        public static final double DEG_STDS = 1;
-        public static final double LOOP_TIME = 0.01;
+        public static final double XY_STDS = 0.7;
+        public static final double ANGLE_STDS = 10;
 
         public static final String NOTE_CAM_NAME = "limelight-object";
         public static final int NOTE_FILTER_SIZE = 5;
@@ -163,6 +162,7 @@ public class Constants {
         public static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(Units.inchesToMeters(-1.5), Units.inchesToMeters(218.42), new Rotation2d());
         public static final Pose2d RED_SPEAKER_POSE = new Pose2d(Units.inchesToMeters(652.73), Units.inchesToMeters(218.42), new Rotation2d());
         public static final double MAX_ROTATION_RATE = 720;
+        public static final double LOOP_TIME = 0.01;
     }
     
     public static final String CANBUS_ID = "seCANdary";

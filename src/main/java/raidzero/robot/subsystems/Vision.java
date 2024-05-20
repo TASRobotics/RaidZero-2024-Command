@@ -47,11 +47,14 @@ public class Vision extends SubsystemBase implements Runnable{
     private static Pigeon2 pigeon = swerve.getPigeon();
 
     
-    private static Pose2d visionPose = new Pose2d(); 
-    private static double visionWeight; // Declare the visionWeight variable
+    private static final PoseEstimate EMPTY_POSE_ESTIMATE = new PoseEstimate(new Pose2d(),
+        0,0,0,0,0,0, null);
+    private static PoseEstimate bestPoseEstimate = EMPTY_POSE_ESTIMATE;
 
 
     private static Vision instance;
+
+    private static double bestPoseEstimateWeight;
 
     public static synchronized Vision getInstance() {
         if (instance == null) {
@@ -61,24 +64,21 @@ public class Vision extends SubsystemBase implements Runnable{
         return instance;
     }
 
-   
-    private static synchronized  void setVisionPose(Pose2d pose) {
-        visionPose = pose;
+    public static synchronized void setPoseEstimate(PoseEstimate poseEstimate) {
+        bestPoseEstimate = poseEstimate;
+    }
+    
+    public synchronized PoseEstimate getPoseEstimate() {
+        return bestPoseEstimate;
     }
 
-    private static synchronized void setVisionWeight(double weight) {
-        visionWeight = weight; // Assign the weight to the visionWeight variable
+    public static synchronized void setPoseWeight(double weight) {
+        bestPoseEstimateWeight = weight;
     }
 
-    public synchronized Pose2d getVisionPose(){
-        return visionPose;
+    public synchronized double getPoseWeight() {
+        return bestPoseEstimateWeight;
     }
-
-    public static synchronized double getVisionWeight() {
-        return visionWeight; // Return the visionWeight variable
-    }
-
-
 
     @Override
     public void run() {
@@ -90,8 +90,8 @@ public class Vision extends SubsystemBase implements Runnable{
                 updatePose();
                 updateNote();
     
-                SmartDashboard.putNumber("Vision X", getVisionPose().getX());
-                SmartDashboard.putNumber("Vision Y", getVisionPose().getY());
+                SmartDashboard.putNumber("Vision X", getPoseEstimate().pose.getX());
+                SmartDashboard.putNumber("Vision Y", getPoseEstimate().pose.getY());
                 SmartDashboard.putBoolean("Has April Tag", hasAprilTag());
                 SmartDashboard.putNumber("Note X", getNoteX());
                 SmartDashboard.putNumber("Note Y", getNoteY());
@@ -135,7 +135,6 @@ public class Vision extends SubsystemBase implements Runnable{
     private double noteY = 0;
     private double noteA = 0;
 
-    private static Vision vision = new Vision();
 
 
     private Vision() {
@@ -227,10 +226,11 @@ public class Vision extends SubsystemBase implements Runnable{
         }
 
         if (filteredPose.getWeightSum() > 0.0 && pigeon.getRate() < VisionConstants.MAX_ROTATION_RATE && hasAprilTag()) {
-            setVisionPoseEstimate(filteredPose.getAverage());
+            setPoseEstimate(filteredPose.getAverage());
+            setPoseWeight(filteredPose.getWeightSum());
         } else {
-            setVisionPose(new Pose2d());
-            setVisionWeight(0.0);
+            setPoseEstimate(null);
+            setPoseWeight(0.0);
         }
     }
 

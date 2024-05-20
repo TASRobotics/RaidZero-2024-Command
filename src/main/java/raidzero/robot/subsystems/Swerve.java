@@ -11,7 +11,9 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -29,6 +31,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import raidzero.robot.Constants;
+import raidzero.robot.Constants.VisionConstants;
+import raidzero.robot.wrappers.LimelightHelper.PoseEstimate;
 
 public class Swerve extends SubsystemBase {
     
@@ -434,9 +438,22 @@ public class Swerve extends SubsystemBase {
     @Override
     public void periodic() {
         odometry.update(getRotation(), getModulePositions());
-        pose.addVisionMeasurement(vision.getVisionPose(), Timer.getFPGATimestamp());
-        vision.getVisionPose().ifPresent(pose -> addVisionMeasurement(pose, Timer.getFPGATimestamp(), new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.2, 0.2, 0.1)));
+        PoseEstimate visionPoseEstimate = vision.getPoseEstimate();
+        double weight = vision.getPoseWeight();
+        if (visionPoseEstimate != null && weight > 0.0) {
+            Matrix<N3, N1> stdDevs = MatBuilder.fill(Nat.N3(),Nat.N1(),
+                VisionConstants.XY_STDS/weight, VisionConstants.XY_STDS/weight, VisionConstants.ANGLE_STDS/weight);
+            odometry.addVisionMeasurement(visionPoseEstimate.pose, visionPoseEstimate.timestampSeconds, stdDevs);
+        }
+
+
         field.setRobotPose(getPose());
     }
+
+    // private Matrix<N3, N1> calculateStdDevs(double weight) {
+    //     // TODO Auto-generated method stub
+    //     double distError = visionPoseEstimate.pose.getTranslation().getDistance(getPose().getTranslation());
+    //     double angleError = visionPoseEstimate.avgTagDist;
+    // }
 
 }
