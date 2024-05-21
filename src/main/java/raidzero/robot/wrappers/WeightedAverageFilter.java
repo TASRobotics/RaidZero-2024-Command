@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.math.geometry.Rotation2d;
+import raidzero.robot.Constants.VisionConstants;
 import raidzero.robot.wrappers.LimelightHelper.PoseEstimate;
 import raidzero.robot.wrappers.LimelightHelper.RawFiducial;
 
@@ -88,10 +89,9 @@ public class WeightedAverageFilter {
      * @return The weight.
      */
     private double calculateWeight(double timestamp, double avgTagDist) {
-        double currentTime = Timer.getFPGATimestamp();
-        double timeDifference = currentTime - timestamp;
-        double weight = Math.exp(-Math.abs(timeDifference) - avgTagDist);
+        double timeDifference = latestTimestamp - timestamp;
+        double weight = Math.exp(-VisionConstants.TIME_SCALE_FACTOR * timeDifference - VisionConstants.DIST_SCALE_FACTOR * avgTagDist);
         weightSum += weight;
-        return 0.0;
+        return weight;
     }
 }

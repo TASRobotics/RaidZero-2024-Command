@@ -441,19 +441,21 @@ public class Swerve extends SubsystemBase {
         PoseEstimate visionPoseEstimate = vision.getPoseEstimate();
         double weight = vision.getPoseWeight();
         if (visionPoseEstimate != null && weight > 0.0) {
-            Matrix<N3, N1> stdDevs = MatBuilder.fill(Nat.N3(),Nat.N1(),
-                VisionConstants.XY_STDS/weight, VisionConstants.XY_STDS/weight, VisionConstants.ANGLE_STDS/weight);
-            odometry.addVisionMeasurement(visionPoseEstimate.pose, visionPoseEstimate.timestampSeconds, stdDevs);
+            
+            odometry.addVisionMeasurement(visionPoseEstimate.pose, 
+                visionPoseEstimate.timestampSeconds, calculateStdDevs(weight));
         }
 
 
         field.setRobotPose(getPose());
     }
 
-    // private Matrix<N3, N1> calculateStdDevs(double weight) {
-    //     // TODO Auto-generated method stub
-    //     double distError = visionPoseEstimate.pose.getTranslation().getDistance(getPose().getTranslation());
-    //     double angleError = visionPoseEstimate.avgTagDist;
-    // }
+    private Matrix<N3, N1> calculateStdDevs(double weight) {
+        double distError = VisionConstants.XY_STDS/weight;
+        double angleError =  VisionConstants.XY_STDS/weight;
+        Matrix<N3, N1> stdDevs = MatBuilder.fill(Nat.N3(),Nat.N1(),
+                distError,distError, angleError);
+        return stdDevs;
+    }
 
 }

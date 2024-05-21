@@ -163,6 +163,8 @@ public class Constants {
         public static final Pose2d RED_SPEAKER_POSE = new Pose2d(Units.inchesToMeters(652.73), Units.inchesToMeters(218.42), new Rotation2d());
         public static final double MAX_ROTATION_RATE = 720;
         public static final double LOOP_TIME = 0.01;
+        public static final double TIME_SCALE_FACTOR = 1.0;
+        public static final double DIST_SCALE_FACTOR = 1.0;
     }
     
     public static final String CANBUS_ID = "seCANdary";
