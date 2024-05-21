@@ -39,7 +39,7 @@ public class Intake extends SubsystemBase {
     /**
      * Creates a new Intake object.
      */
-    public Intake() {
+    private Intake() {
 
         intakeMotor = new TalonFX(IntakeConstants.INTAKE_ID);
         intakeMotor.getConfigurator().apply(getConfigs());

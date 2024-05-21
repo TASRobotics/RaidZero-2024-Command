@@ -20,7 +20,7 @@ public class Conveyor extends SubsystemBase {
     /**
      * Creates a new Conveyor object.
      */
-    public Conveyor() {
+    private Conveyor() {
         conveyorMotor = new CANSparkMax(ConveyorConstants.CONVEYOR_ID, MotorType.kBrushless);
 
         conveyorMotor.restoreFactoryDefaults();
