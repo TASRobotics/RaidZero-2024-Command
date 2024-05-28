@@ -3,6 +3,7 @@ package raidzero.robot.commands;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -21,6 +22,7 @@ public class FollowPath extends Command {
 
     private PPHolonomicDriveController ppController = swerve.getPpController();
     private ProfiledPIDController aimAssistController = swerve.getAimAssistYController();
+    private PIDController snapController = swerve.getSnapController();
     private Alliance alliance = swerve.getAlliance();
 
     private boolean overridePathingRotationSpeakerAim, overridePathingRotationNoteAim;
@@ -68,7 +70,8 @@ public class FollowPath extends Command {
         SmartDashboard.putNumber("error", ppController.getPositionalError());
 
         if(overridePathingRotationSpeakerAim && vision.getSpeakerAngle(alliance) != null) {
-            double omega = (vision.getSpeakerAngle(alliance).getDegrees() - swerve.getPigeon().getRotation2d().getDegrees()) * 0.15;
+            double omega = snapController.calculate(vision.getSpeakerAngle(alliance).getDegrees() - swerve.getPigeon().getRotation2d().getDegrees());
+            // double omega = (vision.getSpeakerAngle(alliance).getDegrees() - swerve.getPigeon().getRotation2d().getDegrees()) * 0.15;
             desiredSpeeds = new ChassisSpeeds(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond, omega);
         }
         if(overridePathingRotationNoteAim && vision.hasNote()) {

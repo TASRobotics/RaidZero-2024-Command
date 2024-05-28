@@ -126,11 +126,14 @@ public class Swerve extends SubsystemBase {
             Constants.Swerve.AIM_ASSIST_CONTROLLER_CONSTRAINTS
         );
 
+        configureAutoBuilder();
+
         alliance = DriverStation.getAlliance().get();
         
         field = new Field2d();
 
     }
+
 
     //* Getters
     /**
