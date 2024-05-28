@@ -45,14 +45,12 @@ public class Swerve extends SubsystemBase {
 
     private Field2d field;
 
-    private Alliance alliance;
+    private PIDController snapController;
 
     private PPHolonomicDriveController ppController;
+    private ProfiledPIDController aimAssistYController;
 
-
-    private PIDController mSnapController;
-
-    private ProfiledPIDController mAimAssistYController;
+    private Alliance alliance;
 
     private static Swerve swerve = new Swerve();
 
@@ -115,28 +113,232 @@ public class Swerve extends SubsystemBase {
             Constants.Swerve.DRIVE_BASE_RADIUS
         );
 
-        mSnapController = new PIDController(
+        snapController = new PIDController(
             Constants.Swerve.SNAP_CONTROLLER_KP, 
             Constants.Swerve.SNAP_CONTROLLER_KI, 
             Constants.Swerve.SNAP_CONTROLLER_KD
         );
 
-        mAimAssistYController = new ProfiledPIDController(
+        aimAssistYController = new ProfiledPIDController(
             Constants.Swerve.AIM_ASSIST_CONTROLLER_KP, 
             Constants.Swerve.AIM_ASSIST_CONTROLLER_KI, 
             Constants.Swerve.AIM_ASSIST_CONTROLLER_KD, 
             Constants.Swerve.AIM_ASSIST_CONTROLLER_CONSTRAINTS
         );
 
-        field = new Field2d();
-
         alliance = DriverStation.getAlliance().get();
-
-        configureAutoBuilder();
+        
+        field = new Field2d();
 
     }
 
-    //TODO: Reorganize methods
+    //* Getters
+    /**
+     * Gets the aim assist PID controller
+     * 
+     * @return Aim assist {@link ProfiledPIDController}
+     */
+    public ProfiledPIDController getAimAssistYController() {
+        return aimAssistYController;
+    }
+
+    /**
+     * Gets the alliance of the robot
+     * 
+     * @return {@link Alliance} alliance
+     */
+    public Alliance getAlliance() {
+        return alliance;
+    }
+
+    /**
+     * Gets the field object
+     * 
+     * @return {@link Field2d} field
+     */
+    public Field2d getField() {
+        return field;
+    }
+
+    /**
+     * Gets the current heading of the swerve drive
+     * 
+     * @return Current {@link Rotation2d} heading
+     */
+    public Rotation2d getHeading() {
+        return getPose().getRotation();
+    }
+
+    /**
+     * Gets the module positions
+     * 
+     * @return Array of {@link SwerveModulePosition}
+     */
+    public SwerveModulePosition[] getModulePositions() {
+        SwerveModulePosition[] positions = new SwerveModulePosition[4];
+
+        positions[0] = moduleFL.getPosition();
+        positions[1] = moduleFR.getPosition();
+        positions[2] = moduleBL.getPosition();
+        positions[3] = moduleBR.getPosition();
+
+        return positions;
+    }
+
+    /**
+     * Creates a chassis speeds object from the current module states
+     * @return Current {@link ChassisSpeeds} of Robot
+     */
+    public ChassisSpeeds getRelativeSpeeds() {
+        return Constants.Swerve.SWERVE_DRIVE_KINEMATICS.toChassisSpeeds(getModuleStates());
+    }
+
+    /**
+     * Gets the swervemodules as an array
+     * 
+     * @return Array of {@link SwerveModule}
+     */
+    public SwerveModule[] getModules() {
+        SwerveModule[] modules = new SwerveModule[4];
+
+        modules[0] = moduleFL;
+        modules[1] = moduleFR;
+        modules[2] = moduleBL;
+        modules[3] = moduleBR;
+
+        return modules;
+    }
+
+    /**
+     * Gets the module states
+     * 
+     * @return Array of {@link SwerveModuleState}
+     */
+    public SwerveModuleState[] getModuleStates() {
+        SwerveModuleState[] states = new SwerveModuleState[4];
+
+        states[0] = moduleFL.getState();
+        states[1] = moduleFR.getState();
+        states[2] = moduleBL.getState();
+        states[3] = moduleBR.getState();
+
+        return states;
+    }
+
+    /**
+     * Gets the pigeon object
+     * 
+     * @return PigeonIMU
+     */
+    public Pigeon2 getPigeon() {
+        return pigeon;
+    }
+
+    /**
+     * Gets the current swerve pose
+     * 
+     * @return Current {@link Pose2d} pose
+     */
+    public Pose2d getPose() {
+        return odometry.getEstimatedPosition();
+    }
+
+    /**
+     * Gets the pose estimator
+     * 
+     * @return {@link SwerveDrivePoseEstimator} pose estimator
+     */
+    public SwerveDrivePoseEstimator getPoseEstimator() {
+        return odometry;
+    }
+
+    /**
+     * Gets the path planner controller
+     * 
+     * @return {@link PPHolonomicDriveController} Pure pursuit holonomic controller
+     */
+    public PPHolonomicDriveController getPpController() {
+        return ppController;
+    }
+
+    /**
+     * Gets the current rotation of the swerve drive
+     * 
+     * @return Current {@link Rotation2d} rotation
+     */
+    public Rotation2d getRotation() {
+        return pigeon.getRotation2d();
+    }
+
+    /**
+     * Gets rotation target override
+     * 
+     * @return Optional of {@link Rotation2d} rotation target override
+     */
+    public Optional<Rotation2d> getRotationTargetOverride(){
+        if (vision.hasNote()) {
+            return Optional.of(Rotation2d.fromDegrees(vision.getNoteXFilter().lastValue()));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Gets the snap controller
+     * 
+     * @return {@link PIDController} snap controller
+     */
+    public PIDController getSnapController() {
+        return snapController;
+    }
+
+    /**
+     * Gets the yaw rate of pigeon
+     * 
+     * @return Pigeon yaw rate
+     */
+    public double getYawRate() {
+        return pigeon.getRate();
+    }
+
+
+    //* Setters
+    /**
+     * Sets the heading of the swerve drive
+     * 
+     * @param heading Desired heading
+     */
+    public void setHeading(double heading) {
+        // odometry.resetPosition(getRotation(), getModulePositions(),
+        //         new Pose2d(getPose().getTranslation(), heading));
+        pigeon.setYaw(heading, Constants.CAN_TIMEOUT_MS);
+    }
+
+    /**
+     * Sets the module states
+     * 
+     * @param desiredStates Desired {@link SwerveModuleState}
+     */
+    public void setModuleStates(SwerveModuleState[] desiredStates) {
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.Swerve.MAX_VEL_MPS);
+
+        moduleFL.setDesiredState(desiredStates[0], false);
+        moduleFR.setDesiredState(desiredStates[1], false);
+        moduleBL.setDesiredState(desiredStates[2], false);
+        moduleBR.setDesiredState(desiredStates[3], false);
+    }
+
+    /**
+     * Sets the current swerve pose
+     * 
+     * @param pose Desired {@link Pose2d} pose
+     */
+    public void setPose(Pose2d pose) {
+        odometry.resetPosition(getRotation(), getModulePositions(), pose);
+    }
+
+    //* Other methods
+
 
     /**
      * Drives the swerve drive with the given translation and rotation
@@ -198,144 +400,7 @@ public class Swerve extends SubsystemBase {
         moduleBR.getThrottle().getConfigurator().apply(config, Constants.CAN_TIMEOUT_MS);
     }
 
-    public void stop() {
-        moduleFL.stopMotors();
-        moduleFR.stopMotors();
-        moduleBL.stopMotors();
-        moduleBR.stopMotors();
-    }
 
-    /**
-     * Sets the module states
-     * 
-     * @param desiredStates Desired {@link SwerveModuleState}
-     */
-    public void setModuleStates(SwerveModuleState[] desiredStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.Swerve.MAX_VEL_MPS);
-
-        moduleFL.setDesiredState(desiredStates[0], false);
-        moduleFR.setDesiredState(desiredStates[1], false);
-        moduleBL.setDesiredState(desiredStates[2], false);
-        moduleBR.setDesiredState(desiredStates[3], false);
-    }
-
-    /**
-     * Gets the module states
-     * 
-     * @return Array of {@link SwerveModuleState}
-     */
-    public SwerveModuleState[] getModuleStates() {
-        SwerveModuleState[] states = new SwerveModuleState[4];
-
-        states[0] = moduleFL.getState();
-        states[1] = moduleFR.getState();
-        states[2] = moduleBL.getState();
-        states[3] = moduleBR.getState();
-
-        return states;
-    }
-
-    /**
-     * Gets the module positions
-     * 
-     * @return Array of {@link SwerveModulePosition}
-     */
-    public SwerveModulePosition[] getModulePositions() {
-        SwerveModulePosition[] positions = new SwerveModulePosition[4];
-
-        positions[0] = moduleFL.getPosition();
-        positions[1] = moduleFR.getPosition();
-        positions[2] = moduleBL.getPosition();
-        positions[3] = moduleBR.getPosition();
-
-        return positions;
-    }
-
-    public SwerveModule[] getModules() {
-        SwerveModule[] modules = new SwerveModule[4];
-
-        modules[0] = moduleFL;
-        modules[1] = moduleFR;
-        modules[2] = moduleBL;
-        modules[3] = moduleBR;
-
-        return modules;
-    }
-
-    /**
-     * Gets the current swerve pose
-     * 
-     * @return Current {@link Pose2d} pose
-     */
-    public Pose2d getPose() {
-        return odometry.getEstimatedPosition();
-    }
-
-    /**
-     * Sets the current swerve pose
-     * 
-     * @param pose Desired {@link Pose2d} pose
-     */
-    public void setPose(Pose2d pose) {
-        odometry.resetPosition(getRotation(), getModulePositions(), pose);
-    }
-
-    /**
-     * Gets the current heading of the swerve drive
-     * 
-     * @return Current {@link Rotation2d} heading
-     */
-    public Rotation2d getHeading() {
-        return getPose().getRotation();
-    }
-
-    public double getYawRate() {
-        return pigeon.getRate();
-    }
-
-    public Field2d getField() {
-        return field;
-    }
-
-    public PPHolonomicDriveController getPpController() {
-        return ppController;
-    }
-
-    public PIDController getmSnapController() {
-        return mSnapController;
-    }
-
-    public ProfiledPIDController getmAimAssistYController() {
-        return mAimAssistYController;
-    }
-
-    /**
-     * Sets the heading of the swerve drive
-     * 
-     * @param heading Desired heading
-     */
-    public void setHeading(double heading) {
-        // odometry.resetPosition(getRotation(), getModulePositions(),
-        //         new Pose2d(getPose().getTranslation(), heading));
-        pigeon.setYaw(heading, Constants.CAN_TIMEOUT_MS);
-    }
-
-    /**
-     * Zeros the heading of the swerve drive
-     */
-    public void zeroHeading() {
-        odometry.resetPosition(getRotation(), getModulePositions(),
-                new Pose2d(getPose().getTranslation(), new Rotation2d()));
-    }
-
-    /**
-     * Gets the current rotation of the swerve drive
-     * 
-     * @return Current {@link Rotation2d} rotation
-     */
-    public Rotation2d getRotation() {
-        return pigeon.getRotation2d();
-    }
 
     /**
      * Resets the modules to absolute position
@@ -348,43 +413,27 @@ public class Swerve extends SubsystemBase {
     }
 
     /**
-     * Gets the relative speeds of the swerve drive
-     * 
-     * @return Relative {@link ChassisSpeeds} speeds
+     * Stops the swerve drive
      */
-    public ChassisSpeeds getRelativeSpeeds() {
-        return Constants.Swerve.SWERVE_DRIVE_KINEMATICS.toChassisSpeeds(getModuleStates());
+    public void stop() {
+        moduleFL.stopMotors();
+        moduleFR.stopMotors();
+        moduleBL.stopMotors();
+        moduleBR.stopMotors();
     }
 
     /**
-     * Gets the pigeon object
-     * 
-     * @return PigeonIMU
+     * Zeros the heading of the swerve drive
      */
-    public Pigeon2 getPigeon() {
-        return pigeon;
-    }
-
-    public SwerveDrivePoseEstimator getPoseEstimator() {
-        return odometry;
-    }
-
-    public Optional<Rotation2d> getRotationTargetOverride(){
-        if (vision.hasNote()) {
-            return Optional.of(Rotation2d.fromDegrees(vision.getNoteX()));
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    public Alliance getAlliance() {
-        return alliance;
+    public void zeroHeading() {
+        odometry.resetPosition(getRotation(), getModulePositions(),
+                new Pose2d(getPose().getTranslation(), new Rotation2d()));
     }
 
     /**
-     * Drives the swerve drive with the given speeds relative to swerve drive
+     * Gets the swerve subsystem.
      * 
-     * @param speed Desired {@link ChassisSpeeds} speed
+     * @return {@link Swerve} swerve
      */
     public void driveRelative(ChassisSpeeds speed) {
         setModuleStates(Constants.Swerve.SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(speed));

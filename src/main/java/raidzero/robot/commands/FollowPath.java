@@ -20,7 +20,7 @@ public class FollowPath extends Command {
     private Vision vision = Vision.getInstance();
 
     private PPHolonomicDriveController ppController = swerve.getPpController();
-    private ProfiledPIDController aimAssistController = swerve.getmAimAssistYController();
+    private ProfiledPIDController aimAssistController = swerve.getAimAssistYController();
     private Alliance alliance = swerve.getAlliance();
 
     private boolean overridePathingRotationSpeakerAim, overridePathingRotationNoteAim;
@@ -72,7 +72,7 @@ public class FollowPath extends Command {
             desiredSpeeds = new ChassisSpeeds(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond, omega);
         }
         if(overridePathingRotationNoteAim && vision.hasNote()) {
-            double omega = aimAssistController.calculate(vision.getNoteX(), 0.0);
+            double omega = aimAssistController.calculate(vision.getNoteXFilter().lastValue(), 0.0);
             desiredSpeeds = new ChassisSpeeds(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond, omega);
         }
 

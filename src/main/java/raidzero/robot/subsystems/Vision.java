@@ -93,9 +93,9 @@ public class Vision extends SubsystemBase implements Runnable{
                 SmartDashboard.putNumber("Vision X", getPoseEstimate().pose.getX());
                 SmartDashboard.putNumber("Vision Y", getPoseEstimate().pose.getY());
                 SmartDashboard.putBoolean("Has April Tag", hasAprilTag());
-                SmartDashboard.putNumber("Note X", getNoteX());
-                SmartDashboard.putNumber("Note Y", getNoteY());
-                SmartDashboard.putNumber("Note Area", getNoteA());
+                SmartDashboard.putNumber("Note X", getNoteXFilter().lastValue());
+                SmartDashboard.putNumber("Note Y", getNoteYFilter().lastValue());
+                SmartDashboard.putNumber("Note Area", getNoteAFilter().lastValue());
                 SmartDashboard.putBoolean("Has Note", hasNote());
                 SmartDashboard.putNumber("Speaker Distance", getSpeakerDistance(alliance));
                 SmartDashboard.putNumber("Speaker Angle", getSpeakerAngle(alliance).getDegrees());
@@ -147,13 +147,12 @@ public class Vision extends SubsystemBase implements Runnable{
 
 
 
-    public double getSpeakerDistance(Alliance alliance) {
-        Pose2d speakerPose = alliance ==
-            Alliance.Blue ? VisionConstants.BLUE_SPEAKER_POSE : VisionConstants.RED_SPEAKER_POSE;
-
-        return swerve.getPose().getTranslation().getDistance(speakerPose.getTranslation());
-    }
-
+    /**
+     * Get the speaker angle.
+     * 
+     * @param alliance {@link Alliance} alliance
+     * @return Speaker angle as {@link Rotation2d}
+     */
     public Rotation2d getSpeakerAngle(Alliance alliance) {
         Pose2d speakerPose = alliance ==
             Alliance.Blue ? VisionConstants.BLUE_SPEAKER_POSE : VisionConstants.RED_SPEAKER_POSE;
@@ -164,22 +163,26 @@ public class Vision extends SubsystemBase implements Runnable{
         );
     }
 
-    public double getNoteX(){
-        return noteX;
+    /**
+     * Get the speaker distance.
+     * 
+     * @param alliance {@link Alliance} alliance
+     * @return Speaker distance
+     */
+    public double getSpeakerDistance(Alliance alliance) {
+        Pose2d speakerPose = alliance ==
+            Alliance.Blue ? VisionConstants.BLUE_SPEAKER_POSE : VisionConstants.RED_SPEAKER_POSE;
+
+        return swerve.getPose().getTranslation().getDistance(speakerPose.getTranslation());
     }
 
-    public double getNoteY(){
-        return noteY;
-    }
 
-    public double getNoteA(){
-        return noteA;
-    }
-
-    public Boolean hasNote(){
-        return LimelightHelper.getTV(VisionConstants.NOTE_CAM_NAME);
-    }
-
+    //* Other methods
+    /**
+     * Checks if the vision detects an AprilTag.
+     * 
+     * @return True if the vision detects an AprilTag, false otherwise
+     */
     public Boolean hasAprilTag(){
         for (String limelight: VisionConstants.LIMELIGHTS){
             if (LimelightHelper.getTV(limelight)){
@@ -189,6 +192,20 @@ public class Vision extends SubsystemBase implements Runnable{
         return false;
     }
 
+    /**
+     * Checks if the vision detects a note.
+     * 
+     * @return True if the vision detects a note, false otherwise
+     */
+    public Boolean hasNote(){
+        return LimelightHelper.getTV(VisionConstants.NOTE_CAM_NAME);
+    }
+
+
+
+    /**
+     * Updates the note position.
+     */
     public void updateNote(){
         if (hasNote()) {
             noteX = noteXFilter.calculate(LimelightHelper.getTX(VisionConstants.NOTE_CAM_NAME));
@@ -235,11 +252,7 @@ public class Vision extends SubsystemBase implements Runnable{
     }
 
 
-
-
-    public static Swerve getSwerve() {
-        return swerve;
-    }
+    //* Setters
 
     public Alliance getAlliance() {
         return alliance;

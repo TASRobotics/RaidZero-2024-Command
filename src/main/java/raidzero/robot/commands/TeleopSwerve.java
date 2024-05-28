@@ -7,18 +7,19 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import raidzero.robot.Constants;
+import raidzero.robot.subsystems.Swerve;
 
 public class TeleopSwerve extends Command {
     
-    private raidzero.robot.subsystems.Swerve swerve;
-
-    private DoubleSupplier translationSup;
-    private DoubleSupplier strafeSup;
-    private DoubleSupplier rotationSup;
+    private Swerve swerve;
 
     private double translationVal;
     private double strafeVal;
     private double rotationVal;
+
+    private DoubleSupplier translationSup;
+    private DoubleSupplier strafeSup;
+    private DoubleSupplier rotationSup;
 
     /**
      * Creates a new TeleopSwerve command.
@@ -29,7 +30,7 @@ public class TeleopSwerve extends Command {
      * @param robotCentricSup Robot-centric mode supplier
      */
     public TeleopSwerve(DoubleSupplier translationSup, DoubleSupplier strafeSup,DoubleSupplier rotationSup, BooleanSupplier robotCentricSup) {
-        this.swerve = raidzero.robot.subsystems.Swerve.getInstance();
+        this.swerve = Swerve.getInstance();
         addRequirements(swerve);
 
         this.translationSup = translationSup;
