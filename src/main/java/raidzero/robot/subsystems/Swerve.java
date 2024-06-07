@@ -52,7 +52,7 @@ public class Swerve extends SubsystemBase {
 
     private Alliance alliance;
 
-    private static Swerve swerve = new Swerve();
+    private static Swerve instance;
 
     /**
      * Constructs a new Swerve object
@@ -485,7 +485,10 @@ public class Swerve extends SubsystemBase {
      * @return Swerve object
      */
     public static Swerve getInstance() {
-        return swerve;
+        if (instance == null){
+            instance = new Swerve();
+        }
+        return instance;
     }
 
     @Override

@@ -55,15 +55,15 @@ public class FollowPath extends Command {
     @Override
     public void execute() {
         PathPlannerTrajectory.State state = (PathPlannerTrajectory.State) path.sample(timer.get());
-        state
-        // Check for event markers
-        for (Trajectory.Event event : state) {
-            if (event.name.equals("fireShooter")) {
-                // Fire the shooter
-            } else if (event.name.equals("deployMechanism")) {
-                // Deploy the mechanism
-            }
-        }
+        // state
+        // // Check for event markers
+        // for (Trajectory.Event event : state) {
+        //     if (event.name.equals("fireShooter")) {
+        //         // Fire the shooter
+        //     } else if (event.name.equals("deployMechanism")) {
+        //         // Deploy the mechanism
+        //     }
+        // }
 
         ppController.setEnabled(true);
 

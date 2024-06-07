@@ -167,7 +167,7 @@ public class Constants {
         public static final double DIST_SCALE_FACTOR = 1.0;
     }
     
-    public static final String CANBUS_ID = "seCANdary";
+    public static final String CANBUS_ID = "CANdoAttitude";
 
     public static final int CAN_TIMEOUT_MS = 10;
     public static final int LONG_CAN_TIMEOUT_MS = 100;
