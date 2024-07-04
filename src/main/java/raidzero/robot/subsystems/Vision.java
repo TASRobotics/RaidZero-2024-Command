@@ -28,9 +28,9 @@ public class Vision extends SubsystemBase {
 
     private Pose2d visionPose = new Pose2d();
     
-    private static final Swerve swerve = Swerve.getSystem();
+    private final CommandSwerveDrivetrain swerve = CommandSwerveDrivetrain.system();
 
-    private static Vision vision = new Vision();
+    private static Vision vision;
 
     /**
      * Constructs a Vision object.
@@ -89,11 +89,13 @@ public class Vision extends SubsystemBase {
             Alliance.Blue ? VisionConstants.BLUE_SPEAKER_POSE : VisionConstants.RED_SPEAKER_POSE;
 
         return Rotation2d.fromRadians(
-            Math.atan2(swerve.getPose().getY() - speakerPose.getY(),
-            swerve.getPose().getX() - speakerPose.getX())
+            Math.atan2(swerve.getPoseEstimator().getEstimatedPosition().getY()
+             - speakerPose.getY(),
+            swerve.getPoseEstimator().getEstimatedPosition().getX() - speakerPose.getX())
         );
     }
 
+    
     /**
      * Get the speaker distance.
      * 
@@ -104,11 +106,13 @@ public class Vision extends SubsystemBase {
         Pose2d speakerPose = alliance ==
             Alliance.Blue ? VisionConstants.BLUE_SPEAKER_POSE : VisionConstants.RED_SPEAKER_POSE;
 
-        return swerve.getPose().getTranslation().getDistance(speakerPose.getTranslation());
+        return swerve.getPoseEstimator().getEstimatedPosition().getTranslation().getDistance(speakerPose.getTranslation());
     }
 
 
     //* Other methods
+
+
     /**
      * Checks if the vision detects an AprilTag.
      * 
@@ -127,27 +131,7 @@ public class Vision extends SubsystemBase {
         return LimelightHelper.getTV(VisionConstants.NOTE_CAM_NAME);
     }
 
-    @Override
-    public void periodic() {
-        updatePose();
-        updateNote();
-
-        SmartDashboard.putNumber("Vision X", getVisionPose().getX());
-        SmartDashboard.putNumber("Vision Y", getVisionPose().getY());
-        SmartDashboard.putBoolean("Has April Tag", hasAprilTag());
-        SmartDashboard.putNumber("Note X", getNoteX());
-        SmartDashboard.putNumber("Note Y", getNoteY());
-        SmartDashboard.putNumber("Note Area", getNoteA());
-        SmartDashboard.putBoolean("Has Note", hasNote());
-        SmartDashboard.putNumber("Speaker Distance", getSpeakerDistance(alliance));
-
-        try {
-            SmartDashboard.putNumber("Speaker Angle", getSpeakerAngle(alliance).getDegrees());
-        } catch (Exception e) {
-        }
-    }
-
-    /**
+     /**
      * Updates the note position.
      */
     public void updateNote(){
@@ -186,8 +170,28 @@ public class Vision extends SubsystemBase {
                     Conversions.degreesToRadians(VisionConstants.DEG_STDS)
                 )
             );
-            swerve.getPoseEstimator()
-                .addVisionMeasurement(robotPose, Timer.getFPGATimestamp() - (tl/1000.0) - (cl/1000.0));
+            swerve.addVisionMeasurement(robotPose, Timer.getFPGATimestamp() - (tl/1000.0) - (cl/1000.0));
+        }
+    }
+
+    @Override
+    public void periodic() {
+        updatePose();
+        updateNote();
+
+        SmartDashboard.putNumber("Vision X", getVisionPose().getX());
+        SmartDashboard.putNumber("Vision Y", getVisionPose().getY());
+        SmartDashboard.putBoolean("Has April Tag", hasAprilTag());
+        SmartDashboard.putNumber("Note X", getNoteX());
+        SmartDashboard.putNumber("Note Y", getNoteY());
+        SmartDashboard.putNumber("Note Area", getNoteA());
+        SmartDashboard.putBoolean("Has Note", hasNote());
+        SmartDashboard.putNumber("Speaker Distance", getSpeakerDistance(alliance));
+
+        try {
+            SmartDashboard.putNumber("Speaker Angle", getSpeakerAngle(alliance).getDegrees());
+        } catch (Exception e) {
+            System.out.println("could not get speaker angle");
         }
     }
 
@@ -197,7 +201,9 @@ public class Vision extends SubsystemBase {
      * @return {@link Vision} vision
      */
     public static Vision getSystem() {
+        if (vision == null) {
+            vision = new Vision();
+        }
         return vision;
-    }
-    
+    }    
 }
