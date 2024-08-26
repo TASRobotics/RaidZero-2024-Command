@@ -186,6 +186,16 @@ public class Constants {
         public static final IdleMode IDLE_MODE = IdleMode.kBrake;
         public static final boolean INVERSION = false;
     }
+
+    public static final class ArmConstants {
+        public static final int LEFT_LEADER_ID = 11;
+        public static final int RIGHT_FOLLOWER_ID = 12;
+
+        public static int ENCODER_ID = 11;
+
+        public static int POSITION_PID_SLOT = 0;
+        public static int PID_UPDATE_HZ = 1000;
+    }
     
     public static final String CANBUS_ID = "seCANdary";
 
