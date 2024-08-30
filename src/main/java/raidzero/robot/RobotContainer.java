@@ -40,21 +40,12 @@ public class RobotContainer {
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-    private final GenericEntry F_TX = Shuffleboard.getTab("Limelight").add("F-TX", 0).getEntry();
-
     // private final Telemetry logger = new Telemetry(MaxSpeed);
 
 	public RobotContainer() {    
         configureBindings();
         
         SmartDashboard.putData(drivetrain.getField2d());
-        
-        initalizeLimelight();
-    }
-    
-    private void initalizeLimelight() {
-        Shuffleboard.getTab("Limelight").addCamera("LL-F", "Front", "http://10.42.53.21:5800/stream.mjpeg");
-        F_TX.setDouble(LimelightHelper.getTX("limelight-front"));
     }
 
 	private void configureBindings() {
@@ -84,9 +75,6 @@ public class RobotContainer {
     }
 
 	public Command getAutonomousCommand() {
-		return new RunCommand(() -> {
-            F_TX.setDouble(LimelightHelper.getTX("limelight-front"));
-            SmartDashboard.putNumber("F-TX", LimelightHelper.getTX("limelight-front"));
-        });
+		return new InstantCommand();
 	}
 }
