@@ -8,16 +8,23 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
+import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
 import raidzero.robot.subsystems.CommandSwerveDrivetrain;
+import raidzero.robot.wrappers.LimelightHelper;
+
 public class RobotContainer {
 	private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
     private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
@@ -33,13 +40,22 @@ public class RobotContainer {
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+    private final GenericEntry F_TX = Shuffleboard.getTab("Limelight").add("F-TX", 0).getEntry();
+
+    // private final Telemetry logger = new Telemetry(MaxSpeed);
 
 	public RobotContainer() {    
-    	configureBindings();
-
+        configureBindings();
+        
         SmartDashboard.putData(drivetrain.getField2d());
-  	}
+        
+        initalizeLimelight();
+    }
+    
+    private void initalizeLimelight() {
+        Shuffleboard.getTab("Limelight").addCamera("LL-F", "Front", "http://10.42.53.21:5800/stream.mjpeg");
+        F_TX.setDouble(LimelightHelper.getTX("limelight-front"));
+    }
 
 	private void configureBindings() {
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
@@ -64,10 +80,13 @@ public class RobotContainer {
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
         }
-        drivetrain.registerTelemetry(logger::telemeterize);
+        // drivetrain.registerTelemetry(logger::telemeterize);
     }
 
 	public Command getAutonomousCommand() {
-		return Commands.print("No autonomous command configured");
+		return new RunCommand(() -> {
+            F_TX.setDouble(LimelightHelper.getTX("limelight-front"));
+            SmartDashboard.putNumber("F-TX", LimelightHelper.getTX("limelight-front"));
+        });
 	}
 }
