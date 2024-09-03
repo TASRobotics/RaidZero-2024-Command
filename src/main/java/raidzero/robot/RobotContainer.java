@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import raidzero.robot.subsystems.CommandSwerveDrivetrain;
+import raidzero.robot.subsystems.NeuralLimelight;
 
 public class RobotContainer {
 	private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
@@ -37,6 +38,8 @@ public class RobotContainer {
 
 	public RobotContainer() {    
         configureBindings();
+
+        NeuralLimelight.getSystem().initialize();
         
         SmartDashboard.putData(drivetrain.getField2d());
     }

@@ -13,6 +13,14 @@ public class NeuralLimelight extends SubsystemBase {
 
     private NeuralLimelight() {
         LimelightHelper.setLEDMode_ForceBlink(limelightName);
+        LimelightHelper.setLEDMode_PipelineControl(limelightName);
+    }
+
+    public void initialize() {
+        SmartDashboard.putNumber("Note TX", LimelightHelper.getTX(limelightName));
+        SmartDashboard.putNumber("Note TY", LimelightHelper.getTY(limelightName));
+        SmartDashboard.putNumber("Note TA", LimelightHelper.getTA(limelightName));
+        SmartDashboard.putBoolean("Note detected", LimelightHelper.getTV(limelightName));
     }
 
     /**
@@ -45,7 +53,7 @@ public class NeuralLimelight extends SubsystemBase {
      * Gets the {@link NeuralLimelight} subsystem instance
      * @return The {@link NeuralLimelight} subsystem instance
      */
-    public NeuralLimelight getSystem() {
+    public static NeuralLimelight getSystem() {
         return neuralLimelight;
     }
 
