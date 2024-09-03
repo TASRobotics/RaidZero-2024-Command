@@ -5,12 +5,21 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -48,6 +57,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         if (Utils.isSimulation()) {
             startSimThread();
         }
+
+        configureAutoBuilder();
     }
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
@@ -55,6 +66,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         if (Utils.isSimulation()) {
             startSimThread();
         }
+
+        configureAutoBuilder();
     }
 
     public SwerveModulePosition[] getModulePositions() {
@@ -137,5 +150,64 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                     TunerConstants.BackRight);
         }
         return DriveTrain;
+    }
+
+
+    //* Pathplanner methods?
+    public Pose2d getPose() {
+        return DriveTrain.m_odometry.getEstimatedPosition();
+    }
+
+    public void setPose(Pose2d pose) {
+        DriveTrain.m_odometry.resetPosition(getPigeon2().getRotation2d(), m_modulePositions, pose);
+    }
+
+    public ChassisSpeeds getRelativeSpeeds() {
+        return DriveTrain.m_kinematics.toChassisSpeeds(DriveTrain.m_moduleStates);
+    }
+
+    public void driveRelative(ChassisSpeeds speeds) {
+        // DriveTrain.m_moduleStates = DriveTrain.m_kinematics.toSwerveModuleStates(speeds);
+        SwerveModuleState[] states = DriveTrain.m_kinematics.toSwerveModuleStates(speeds);
+        SwerveModule[] modules = DriveTrain.Modules;
+
+        modules[0].apply(states[0], DriveRequestType.Velocity);
+        modules[1].apply(states[1], DriveRequestType.Velocity);
+        modules[2].apply(states[2], DriveRequestType.Velocity);
+        modules[3].apply(states[3], DriveRequestType.Velocity);
+    }
+
+    private void configureAutoBuilder() {
+        AutoBuilder.configureHolonomic(
+            this::getPose,
+            this::setPose,
+            this::getRelativeSpeeds,
+            this::driveRelative,
+            new HolonomicPathFollowerConfig(
+                new PIDConstants(
+                    1,
+                    0.0,
+                    0.0
+                ),
+                new PIDConstants(
+                    0.0,
+                    0.0,
+                    0.0
+                ),
+                3.5,
+                0.24,
+                new ReplanningConfig()
+            ),
+            () -> {
+                var alliance = DriverStation.getAlliance();
+
+                if (alliance.isPresent()) {
+                    return alliance.get() == DriverStation.Alliance.Red;
+                }
+
+                return false;
+            },
+            this
+        );
     }
 }

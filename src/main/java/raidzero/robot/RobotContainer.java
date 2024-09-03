@@ -6,11 +6,13 @@ package raidzero.robot;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -36,12 +38,18 @@ public class RobotContainer {
 
     // private final Telemetry logger = new Telemetry(MaxSpeed);
 
+    private final SendableChooser<Command> chooser;
+
 	public RobotContainer() {    
         configureBindings();
 
         NeuralLimelight.getSystem().initialize();
         
         SmartDashboard.putData(drivetrain.getField2d());
+
+        chooser = AutoBuilder.buildAutoChooser();
+
+        SmartDashboard.putData("AutoChooser", chooser);
     }
 
 	private void configureBindings() {
@@ -71,6 +79,6 @@ public class RobotContainer {
     }
 
 	public Command getAutonomousCommand() {
-		return new InstantCommand();
+		return chooser.getSelected();
 	}
 }
