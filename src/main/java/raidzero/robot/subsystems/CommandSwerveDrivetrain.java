@@ -5,17 +5,14 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -46,6 +43,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private boolean hasAppliedOperatorPerspective = false;
 
     private Field2d field = new Field2d();
+
+    private final SwerveRequest.ApplyChassisSpeeds AutoRequest = new SwerveRequest.ApplyChassisSpeeds();
 
     // private Vision vision = Vision.getSystem();
 
@@ -163,69 +162,24 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return DriveTrain;
     }
 
-
-    //* Pathplanner methods?
-    public Pose2d getPose() {
-        return system().m_odometry.getEstimatedPosition();
-    }
-
-    public void setPose(Pose2d pose) {
-        system().m_odometry.resetPosition(pose.getRotation(), DriveTrain.getModulePositions(), pose);
-        system().m_pigeon2.setYaw(pose.getRotation().getDegrees());
-    }
-
     public ChassisSpeeds getRelativeSpeeds() {
-        return system().m_kinematics.toChassisSpeeds(DriveTrain.getModuleStates());
-    }
-
-    public void driveRelative(ChassisSpeeds speeds) {
-        // DriveTrain.m_moduleStates = DriveTrain.m_kinematics.toSwerveModuleStates(speeds);
-        // SwerveModuleState[] states = DriveTrain.m_kinematics.toSwerveModuleStates(speeds);
-
-        // DriveTrain.Modules[0].apply(states[0], DriveRequestType.Velocity);
-        // DriveTrain.Modules[1].apply(states[1], DriveRequestType.Velocity);
-        // DriveTrain.Modules[2].apply(states[2], DriveRequestType.Velocity);
-        // DriveTrain.Modules[3].apply(states[3], DriveRequestType.Velocity);
-
-        system().applyRequest(() -> 
-            new SwerveRequest.RobotCentric()
-                .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-                .withVelocityX(speeds.vxMetersPerSecond)
-                .withVelocityY(speeds.vyMetersPerSecond)
-                .withRotationalRate(speeds.omegaRadiansPerSecond)
-        );
+        return m_kinematics.toChassisSpeeds(getState().ModuleStates);
     }
 
     private void configureAutoBuilder() {
         AutoBuilder.configureHolonomic(
-            this::getPose,
-            this::setPose,
+            () -> this.getState().Pose,
+            this::seedFieldRelative,
             this::getRelativeSpeeds,
-            this::driveRelative,
+            (speeds) -> this.setControl(AutoRequest.withSpeeds(speeds)),
             new HolonomicPathFollowerConfig(
-                new PIDConstants(
-                    1000,
-                    0.0,
-                    0.0
-                ),
-                new PIDConstants(
-                    0.0,
-                    0.0,
-                    0.0
-                ),
+                new PIDConstants(20, 0, 0),
+                new PIDConstants(5, 0, 0),
                 3.5,
                 0.24,
                 new ReplanningConfig()
             ),
-            () -> {
-                var alliance = DriverStation.getAlliance();
-
-                if (alliance.isPresent()) {
-                    return alliance.get() == DriverStation.Alliance.Red;
-                }
-
-                return false;
-            },
+            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
             this
         );
     }
