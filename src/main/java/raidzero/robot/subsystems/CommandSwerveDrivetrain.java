@@ -82,6 +82,17 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return positions;
     }
 
+    public SwerveModuleState[] getModuleStates() {
+        SwerveModuleState[] states = new SwerveModuleState[4];
+
+        states[0] = Modules[0].getCurrentState();
+        states[1] = Modules[1].getCurrentState();
+        states[2] = Modules[2].getCurrentState();
+        states[3] = Modules[3].getCurrentState();
+
+        return states;
+    }
+
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
     }
@@ -155,26 +166,34 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     //* Pathplanner methods?
     public Pose2d getPose() {
-        return DriveTrain.m_odometry.getEstimatedPosition();
+        return system().m_odometry.getEstimatedPosition();
     }
 
     public void setPose(Pose2d pose) {
-        DriveTrain.m_odometry.resetPosition(getPigeon2().getRotation2d(), m_modulePositions, pose);
+        system().m_odometry.resetPosition(pose.getRotation(), DriveTrain.getModulePositions(), pose);
+        system().m_pigeon2.setYaw(pose.getRotation().getDegrees());
     }
 
     public ChassisSpeeds getRelativeSpeeds() {
-        return DriveTrain.m_kinematics.toChassisSpeeds(DriveTrain.m_moduleStates);
+        return system().m_kinematics.toChassisSpeeds(DriveTrain.getModuleStates());
     }
 
     public void driveRelative(ChassisSpeeds speeds) {
         // DriveTrain.m_moduleStates = DriveTrain.m_kinematics.toSwerveModuleStates(speeds);
-        SwerveModuleState[] states = DriveTrain.m_kinematics.toSwerveModuleStates(speeds);
-        SwerveModule[] modules = DriveTrain.Modules;
+        // SwerveModuleState[] states = DriveTrain.m_kinematics.toSwerveModuleStates(speeds);
 
-        modules[0].apply(states[0], DriveRequestType.Velocity);
-        modules[1].apply(states[1], DriveRequestType.Velocity);
-        modules[2].apply(states[2], DriveRequestType.Velocity);
-        modules[3].apply(states[3], DriveRequestType.Velocity);
+        // DriveTrain.Modules[0].apply(states[0], DriveRequestType.Velocity);
+        // DriveTrain.Modules[1].apply(states[1], DriveRequestType.Velocity);
+        // DriveTrain.Modules[2].apply(states[2], DriveRequestType.Velocity);
+        // DriveTrain.Modules[3].apply(states[3], DriveRequestType.Velocity);
+
+        system().applyRequest(() -> 
+            new SwerveRequest.RobotCentric()
+                .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+                .withVelocityX(speeds.vxMetersPerSecond)
+                .withVelocityY(speeds.vyMetersPerSecond)
+                .withRotationalRate(speeds.omegaRadiansPerSecond)
+        );
     }
 
     private void configureAutoBuilder() {
@@ -185,7 +204,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             this::driveRelative,
             new HolonomicPathFollowerConfig(
                 new PIDConstants(
-                    1,
+                    1000,
                     0.0,
                     0.0
                 ),
