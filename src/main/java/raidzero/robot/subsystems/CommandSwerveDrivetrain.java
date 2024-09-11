@@ -20,6 +20,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -147,6 +148,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             });
         }
 
+        SmartDashboard.putNumber("yaw", getState().Pose.getRotation().getDegrees());
+
         field.setRobotPose(m_odometry.getEstimatedPosition());
     }
 
@@ -173,8 +176,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             this::getRelativeSpeeds,
             (speeds) -> this.setControl(AutoRequest.withSpeeds(speeds)),
             new HolonomicPathFollowerConfig(
-                new PIDConstants(20, 0, 0),
-                new PIDConstants(5, 0, 0),
+                new PIDConstants(25.5, 0, 0),
+                new PIDConstants(6.75, 0, 0),
                 3.5,
                 0.24,
                 new ReplanningConfig()
