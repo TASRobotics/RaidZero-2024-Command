@@ -1,5 +1,7 @@
 package raidzero.robot.subsystems;
 
+import java.util.Optional;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -38,7 +40,7 @@ public class NeuralLimelight extends SubsystemBase {
      * @return The field relative horizontal offset from target note as a {@link Rotation2d}.
      */
     public Rotation2d getNoteFieldRotation() {
-        return this.getNoteRotation().plus(CommandSwerveDrivetrain.system().getPigeon2().getRotation2d());
+        return this.getNoteRotation().minus(CommandSwerveDrivetrain.system().getPigeon2().getRotation2d());
     }
 
     @Override
@@ -47,6 +49,18 @@ public class NeuralLimelight extends SubsystemBase {
         SmartDashboard.putNumber("Note TY", LimelightHelper.getTY(limelightName));
         SmartDashboard.putNumber("Note TA", LimelightHelper.getTA(limelightName));
         SmartDashboard.putBoolean("Note detected", LimelightHelper.getTV(limelightName));
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public Optional<Rotation2d> getRotationalOverride() {
+        if (LimelightHelper.getTV(limelightName)) {
+            return Optional.of(getNoteFieldRotation());
+        } else {
+            return Optional.empty();
+        }
     }
 
     /**
