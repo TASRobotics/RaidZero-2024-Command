@@ -7,6 +7,7 @@ package raidzero.robot;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -17,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-
+import raidzero.robot.commands.GoToNote;
 import raidzero.robot.subsystems.CommandSwerveDrivetrain;
 import raidzero.robot.subsystems.NeuralLimelight;
 
@@ -46,6 +47,10 @@ public class RobotContainer {
         NeuralLimelight.getSystem().initialize();
         
         SmartDashboard.putData(drivetrain.getField2d());
+
+
+        NamedCommands.registerCommand("Go to note", new GoToNote());
+        
 
         chooser = AutoBuilder.buildAutoChooser();
 
