@@ -40,7 +40,7 @@ public class NeuralLimelight extends SubsystemBase {
      * @return The field relative horizontal offset from target note as a {@link Rotation2d}.
      */
     public Rotation2d getNoteFieldRotation() {
-        return this.getNoteRotation().minus(CommandSwerveDrivetrain.system().getPigeon2().getRotation2d());
+        return CommandSwerveDrivetrain.system().getPigeon2().getRotation2d().minus(this.getNoteRotation());
     }
 
     @Override
