@@ -43,6 +43,46 @@ public class NeuralLimelight extends SubsystemBase {
         return CommandSwerveDrivetrain.system().getPigeon2().getRotation2d().minus(this.getNoteRotation());
     }
 
+    /**
+     * If a note is detected.
+     * 
+     * @return If a note is detected.
+     */
+    public boolean isNoteDetected() {
+        return LimelightHelper.getTV(limelightName);
+    }
+
+    /**
+     * Gets the area of the note. (Relative to camera FOV...?)
+     * 
+     * @return
+     */
+    public double getNoteArea() {
+        return LimelightHelper.getTA(limelightName);
+    }
+
+    // public double getNoteDistance() {
+    //     return Constants.VisionConstants.NOTE_HEIGHT / Math.tan(Math.toRadians(Constants.VisionConstants.NOTE_MOUNTING_ANGLE + LimelightHelper.getTY(limelightName)));
+    // }
+
+    /**
+     * Gets the horizontal offset from target note.
+     * 
+     * @return The horizontal offset from target note.
+     */
+    public double getNoteTx() {
+        return LimelightHelper.getTX(limelightName);
+    }
+
+    /**
+     * Gets the vertical offset from target note.
+     * 
+     * @return The vertical offset from target note.
+     */
+    public double getNoteTy() {
+        return LimelightHelper.getTY(limelightName);
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Note TX", LimelightHelper.getTX(limelightName));
