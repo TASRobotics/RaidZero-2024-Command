@@ -156,6 +156,16 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         field.setRobotPose(m_odometry.getEstimatedPosition());
     }
 
+    public void stop() {
+        this.setControl(AutoRequest.withSpeeds(
+            new ChassisSpeeds(
+                0.0,
+                0.0,
+                0.0
+            )
+        ));
+    }
+
     public static CommandSwerveDrivetrain system() {
         if (DriveTrain == null) {
             DriveTrain = new CommandSwerveDrivetrain(
