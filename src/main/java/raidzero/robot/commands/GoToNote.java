@@ -9,13 +9,19 @@ import raidzero.robot.subsystems.NeuralLimelight;
 
 public class GoToNote extends Command {
 
-    CommandSwerveDrivetrain swerve = CommandSwerveDrivetrain.system();
+    private final CommandSwerveDrivetrain swerve;
 
-    NeuralLimelight neuralLL = NeuralLimelight.getSystem();
+    private final NeuralLimelight neuralLL;
     
-    private final SwerveRequest.ApplyChassisSpeeds AutoRequest = new SwerveRequest.ApplyChassisSpeeds();
+    private final SwerveRequest.ApplyChassisSpeeds AutoRequest;
 
-    public GoToNote() {}
+    public GoToNote() {
+        swerve = CommandSwerveDrivetrain.system();
+        neuralLL = NeuralLimelight.getSystem();
+        AutoRequest = new SwerveRequest.ApplyChassisSpeeds();
+
+        addRequirements(swerve);
+    }
 
     @Override
     public void execute() {
