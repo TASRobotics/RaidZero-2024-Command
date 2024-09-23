@@ -1,0 +1,55 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.4115350579455615,
+      "y": 1.9476385334739843
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MultiObj-1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Go to note"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MultiObj-2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MultiObj-3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Go to note"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MultiObj-4"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
