@@ -28,16 +28,16 @@ public class GoToNote extends Command {
         swerve.setControl(AutoRequest.withSpeeds(
             ChassisSpeeds.fromRobotRelativeSpeeds(
                 0.0,
-                0.3,
-                0.0,
+                2.25,
+                neuralLL.getNoteTx() * -0.125,
                 swerve.getPigeon2().getRotation2d()
             )
         ));
     }
 
     @Override
-    public boolean isFinished() { // TY < 17 deg
-        return neuralLL.getNoteTy() > 17.0;
+    public boolean isFinished() {
+        return neuralLL.getNoteTy() < -17.5;
     }
 
     @Override
