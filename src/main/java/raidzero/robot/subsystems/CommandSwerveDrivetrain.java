@@ -13,6 +13,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -24,9 +25,11 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import raidzero.robot.TunerConstants;
+import raidzero.robot.wrappers.LimelightHelper;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
@@ -152,6 +155,24 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
 
         SmartDashboard.putNumber("yaw", getState().Pose.getRotation().getDegrees());
+
+        this.m_odometry.addVisionMeasurement(
+            LimelightHelper.getBotPose2d_wpiBlue("left"),
+            Timer.getFPGATimestamp(),
+            VecBuilder.fill(.5,.5,9999999)
+        );
+
+        this.m_odometry.addVisionMeasurement(
+            LimelightHelper.getBotPose2d_wpiBlue("back"),
+            Timer.getFPGATimestamp(),
+            VecBuilder.fill(.5,.5,9999999)
+        );
+
+        // this.m_odometry.addVisionMeasurement(
+        //     LimelightHelper.getBotPose2d_wpiBlue("right"),
+        //     Timer.getFPGATimestamp(),
+        //     VecBuilder.fill(.5,.5,9999999)
+        // );
 
         field.setRobotPose(m_odometry.getEstimatedPosition());
     }
