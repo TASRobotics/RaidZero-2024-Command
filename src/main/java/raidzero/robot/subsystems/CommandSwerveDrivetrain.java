@@ -156,14 +156,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         SmartDashboard.putNumber("yaw", getState().Pose.getRotation().getDegrees());
 
-        this.m_odometry.addVisionMeasurement(
-            LimelightHelper.getBotPose2d_wpiBlue("left"),
+        this.addVisionMeasurement(
+            LimelightHelper.getBotPose2d_wpiBlue("limelight-left"),
             Timer.getFPGATimestamp(),
             VecBuilder.fill(.5,.5,9999999)
         );
 
-        this.m_odometry.addVisionMeasurement(
-            LimelightHelper.getBotPose2d_wpiBlue("back"),
+        this.addVisionMeasurement(
+            LimelightHelper.getBotPose2d_wpiBlue("limelight-back"),
             Timer.getFPGATimestamp(),
             VecBuilder.fill(.5,.5,9999999)
         );
