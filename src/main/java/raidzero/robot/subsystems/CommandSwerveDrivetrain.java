@@ -57,7 +57,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private NeuralLimelight neuralLL = NeuralLimelight.getSystem();
 
-    private boolean doRejectUpdate = false;
+    private boolean doRejectUpdateBack = false;
+    private boolean doRejectUpdateLeft = false;
+    // private boolean doRejectUpdateRight = false;
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
             SwerveModuleConstants... modules) {
@@ -179,20 +181,52 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         // LimelightHelper.Results res = LimelightHelper.getLatestResults("limelight-left").targetingResults;
 
         if (Math.abs(this.getPigeon2().getRate()) > 720) {
-            doRejectUpdate = true;
-        } else if (!LimelightHelper.getTV("limelight-left")) {
-            doRejectUpdate = true;
-        } else {
-            doRejectUpdate = false;
+            doRejectUpdateBack = true;
+            doRejectUpdateLeft = true;
+            // doRejectUpdateRight = true;
         }
 
-        if (!doRejectUpdate) {
+        if (!LimelightHelper.getTV("limelight-back")) {
+            doRejectUpdateBack = true;
+        } else {
+            doRejectUpdateBack = false;
+        }
+
+        if (!LimelightHelper.getTV("limelight-left")) {
+            doRejectUpdateLeft = true;
+        } else {
+            doRejectUpdateLeft = false;
+        }
+
+        // if (!LimelightHelper.getTV("limelight-right")) {
+        //     doRejectUpdateRight = true;
+        // } else {
+        //     doRejectUpdateRight = false;
+        // }
+
+        if (!doRejectUpdateBack) {
+            this.addVisionMeasurement(
+                LimelightHelper.getBotPose2d_wpiBlue("limelight-back"),
+                Timer.getFPGATimestamp(),
+                VecBuilder.fill(.1,.1,9999999)
+            );
+        }
+
+        if (!doRejectUpdateLeft) {
             this.addVisionMeasurement(
                 LimelightHelper.getBotPose2d_wpiBlue("limelight-left"),
                 Timer.getFPGATimestamp(),
                 VecBuilder.fill(.1,.1,9999999)
             );
         }
+
+        // if (!doRejectUpdateRight) {
+        //     this.addVisionMeasurement(
+        //         LimelightHelper.getBotPose2d_wpiBlue("limelight-right"),
+        //         Timer.getFPGATimestamp(),
+        //         VecBuilder.fill(.1,.1,9999999)
+        //     );
+        // }
 
         field.setRobotPose(m_odometry.getEstimatedPosition());
     }
