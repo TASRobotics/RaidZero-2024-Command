@@ -28,8 +28,9 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import raidzero.robot.Constants.VisionConstants;
 import raidzero.robot.TunerConstants;
-import raidzero.robot.wrappers.LimelightHelper;
+import raidzero.robot.wrappers.LimelightHelpers;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
@@ -59,7 +60,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private boolean doRejectUpdateBack = false;
     private boolean doRejectUpdateLeft = false;
-    // private boolean doRejectUpdateRight = false;
+    private boolean doRejectUpdateRight = false;
+    private boolean shouldHaveVision = true;
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
             SwerveModuleConstants... modules) {
@@ -180,53 +182,125 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         // LimelightHelper.Results res = LimelightHelper.getLatestResults("limelight-left").targetingResults;
 
-        if (Math.abs(this.getPigeon2().getRate()) > 720) {
-            doRejectUpdateBack = true;
-            doRejectUpdateLeft = true;
-            // doRejectUpdateRight = true;
-        }
+        // LimelightHelpers.LimelightResults leftRes = 
+        //     LimelightHelpers.getLatestResults("limelight-left");
 
-        if (!LimelightHelper.getTV("limelight-back")) {
-            doRejectUpdateBack = true;
-        } else {
-            doRejectUpdateBack = false;
-        }
+        // LimelightHelpers.LimelightResults rightRes = 
+        //     LimelightHelpers.getLatestResults("limelight-right");
 
-        if (!LimelightHelper.getTV("limelight-left")) {
+        // LimelightHelpers.LimelightResults backRes = 
+        //     LimelightHelpers.getLatestResults("limelight-back");
+
+        // // if (Math.abs(this.getPigeon2().getRate()) > 720) {
+        // //     doRejectUpdateBack = true;
+        // //     doRejectUpdateLeft = true;
+        // //     doRejectUpdateRight = true;
+        // // }
+
+        // // if (this.getPoseEstimator().getEstimatedPosition().getX() == 0.0) {
+        // //     doRejectUpdateBack = false;
+        // //     doRejectUpdateLeft = false;
+        // //     doRejectUpdateRight = false;
+        // // }
+
+        // if (!LimelightHelpers.getTV("limelight-back")) {
+        //     doRejectUpdateBack = true;
+        // } else {
+        //     doRejectUpdateBack = false;
+        // }
+
+        // if (!LimelightHelpers.getTV("limelight-left")) {
+        //     doRejectUpdateLeft = true;
+        // } else {
+        //     doRejectUpdateLeft = false;
+        // }
+
+        // if (!LimelightHelpers.getTV("limelight-right")) {
+        //     doRejectUpdateRight = true;
+        // } else {
+        //     doRejectUpdateRight = false;
+        // }
+        // if (!doRejectUpdateBack) {
+        //     // this.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(.1,.1,9999999));
+
+        //     this.addVisionMeasurement(
+        //         // LimelightHelpers.getBotPose2d_wpiBlue("limelight-back"),
+        //         backRes.getBotPose2d_wpiBlue(),
+        //         (Timer.getFPGATimestamp() - (backRes.latency_pipeline / 1000.0) - (backRes.latency_capture / 1000.0)),
+        //         VecBuilder.fill(.1,.1,9999999)
+        //     );
+        // }
+
+        // if (!doRejectUpdateLeft) {
+        //     // this.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(.1,.1,9999999));
+
+        //     this.addVisionMeasurement(
+        //         // LimelightHelpers.getBotPose2d_wpiBlue("limelight-left"),
+        //         leftRes.getBotPose2d_wpiBlue(),
+        //         (Timer.getFPGATimestamp() - (leftRes.latency_pipeline / 1000.0) - (leftRes.latency_capture / 1000.0)),
+        //         VecBuilder.fill(.1,.1,9999999)
+        //     );
+        // }
+
+        // if (!doRejectUpdateRight) {
+        //     // this.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(.1,.1,9999999));
+
+        //     this.addVisionMeasurement(
+        //         // LimelightHelpers.getBotPose2d_wpiBlue("limelight-right"),
+        //         rightRes.getBotPose2d_wpiBlue(),
+        //         (Timer.getFPGATimestamp() - (rightRes.latency_pipeline / 1000.0) - (rightRes.latency_capture / 1000.0)),
+        //         VecBuilder.fill(.1,.1,9999999)
+        //     );
+        // }
+
+        LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        LimelightHelpers.PoseEstimate mt2L = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
+
+        if (mt2L.tagCount == 0) {
             doRejectUpdateLeft = true;
         } else {
             doRejectUpdateLeft = false;
         }
 
-        // if (!LimelightHelper.getTV("limelight-right")) {
-        //     doRejectUpdateRight = true;
-        // } else {
-        //     doRejectUpdateRight = false;
-        // }
-
-        if (!doRejectUpdateBack) {
+        if (shouldHaveVision && !doRejectUpdateLeft) {
+            this.setVisionMeasurementStdDevs(VecBuilder.fill(.1,.1,9999999));
             this.addVisionMeasurement(
-                LimelightHelper.getBotPose2d_wpiBlue("limelight-back"),
-                Timer.getFPGATimestamp(),
-                VecBuilder.fill(.1,.1,9999999)
-            );
+                mt2L.pose,
+                mt2L.timestampSeconds);
         }
 
-        if (!doRejectUpdateLeft) {
-            this.addVisionMeasurement(
-                LimelightHelper.getBotPose2d_wpiBlue("limelight-left"),
-                Timer.getFPGATimestamp(),
-                VecBuilder.fill(.1,.1,9999999)
-            );
+        LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        LimelightHelpers.PoseEstimate mt2R = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
+
+
+        if (mt2R.tagCount == 0) {
+            doRejectUpdateRight = true;
+        } else {
+            doRejectUpdateRight = false;
         }
 
-        // if (!doRejectUpdateRight) {
-        //     this.addVisionMeasurement(
-        //         LimelightHelper.getBotPose2d_wpiBlue("limelight-right"),
-        //         Timer.getFPGATimestamp(),
-        //         VecBuilder.fill(.1,.1,9999999)
-        //     );
-        // }
+        if (shouldHaveVision && !doRejectUpdateRight) {
+            this.setVisionMeasurementStdDevs(VecBuilder.fill(.1,.1,9999999));
+            this.addVisionMeasurement(
+                mt2R.pose,
+                mt2R.timestampSeconds);
+        }
+
+        LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        LimelightHelpers.PoseEstimate mt2B = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-back");
+
+        if (mt2B.tagCount == 0) {
+            doRejectUpdateBack = true;
+        } else {
+            doRejectUpdateBack = false;
+        }
+
+        if (shouldHaveVision && !doRejectUpdateBack) {
+            this.setVisionMeasurementStdDevs(VecBuilder.fill(.1,.1,9999999));
+            this.addVisionMeasurement(
+                mt2B.pose,
+                mt2B.timestampSeconds);
+        }
 
         field.setRobotPose(m_odometry.getEstimatedPosition());
     }
