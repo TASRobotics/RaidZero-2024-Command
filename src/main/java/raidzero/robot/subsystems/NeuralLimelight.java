@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import raidzero.robot.Constants;
-import raidzero.robot.wrappers.LimelightHelper;
+import raidzero.robot.wrappers.LimelightHelpers;
 
 public class NeuralLimelight extends SubsystemBase {
 
@@ -14,15 +14,15 @@ public class NeuralLimelight extends SubsystemBase {
     private static final NeuralLimelight neuralLimelight = new NeuralLimelight();
 
     private NeuralLimelight() {
-        LimelightHelper.setLEDMode_ForceBlink(limelightName);
-        LimelightHelper.setLEDMode_PipelineControl(limelightName);
+        LimelightHelpers.setLEDMode_ForceBlink(limelightName);
+        LimelightHelpers.setLEDMode_PipelineControl(limelightName);
     }
 
     public void initialize() {
-        SmartDashboard.putNumber("Note TX", LimelightHelper.getTX(limelightName));
-        SmartDashboard.putNumber("Note TY", LimelightHelper.getTY(limelightName));
-        SmartDashboard.putNumber("Note TA", LimelightHelper.getTA(limelightName));
-        SmartDashboard.putBoolean("Note detected", LimelightHelper.getTV(limelightName));
+        SmartDashboard.putNumber("Note TX", LimelightHelpers.getTX(limelightName));
+        SmartDashboard.putNumber("Note TY", LimelightHelpers.getTY(limelightName));
+        SmartDashboard.putNumber("Note TA", LimelightHelpers.getTA(limelightName));
+        SmartDashboard.putBoolean("Note detected", LimelightHelpers.getTV(limelightName));
     }
 
     /**
@@ -31,7 +31,7 @@ public class NeuralLimelight extends SubsystemBase {
      * @return The horizontal offset from target note as a {@link Rotation2d}.
      */
     public Rotation2d getNoteRotation() {
-        return Rotation2d.fromDegrees(LimelightHelper.getTX(limelightName));
+        return Rotation2d.fromDegrees(LimelightHelpers.getTX(limelightName));
     }
 
     /**
@@ -49,7 +49,7 @@ public class NeuralLimelight extends SubsystemBase {
      * @return If a note is detected.
      */
     public boolean isNoteDetected() {
-        return LimelightHelper.getTV(limelightName);
+        return LimelightHelpers.getTV(limelightName);
     }
 
     /**
@@ -58,7 +58,7 @@ public class NeuralLimelight extends SubsystemBase {
      * @return
      */
     public double getNoteArea() {
-        return LimelightHelper.getTA(limelightName);
+        return LimelightHelpers.getTA(limelightName);
     }
 
     // public double getNoteDistance() {
@@ -71,7 +71,7 @@ public class NeuralLimelight extends SubsystemBase {
      * @return The horizontal offset from target note.
      */
     public double getNoteTx() {
-        return LimelightHelper.getTX(limelightName);
+        return LimelightHelpers.getTX(limelightName);
     }
 
     /**
@@ -80,15 +80,15 @@ public class NeuralLimelight extends SubsystemBase {
      * @return The vertical offset from target note.
      */
     public double getNoteTy() {
-        return LimelightHelper.getTY(limelightName);
+        return LimelightHelpers.getTY(limelightName);
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Note TX", LimelightHelper.getTX(limelightName));
-        SmartDashboard.putNumber("Note TY", LimelightHelper.getTY(limelightName));
-        SmartDashboard.putNumber("Note TA", LimelightHelper.getTA(limelightName));
-        SmartDashboard.putBoolean("Note detected", LimelightHelper.getTV(limelightName));
+        SmartDashboard.putNumber("Note TX", LimelightHelpers.getTX(limelightName));
+        SmartDashboard.putNumber("Note TY", LimelightHelpers.getTY(limelightName));
+        SmartDashboard.putNumber("Note TA", LimelightHelpers.getTA(limelightName));
+        SmartDashboard.putBoolean("Note detected", LimelightHelpers.getTV(limelightName));
     }
 
     /**
@@ -96,7 +96,7 @@ public class NeuralLimelight extends SubsystemBase {
      * @return
      */
     public Optional<Rotation2d> getRotationalOverride() {
-        if (LimelightHelper.getTV(limelightName)) {
+        if (LimelightHelpers.getTV(limelightName)) {
             return Optional.of(getNoteFieldRotation());
         } else {
             return Optional.empty();
