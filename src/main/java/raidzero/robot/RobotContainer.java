@@ -49,7 +49,7 @@ public class RobotContainer {
         SmartDashboard.putData(drivetrain.getField2d());
 
 
-        NamedCommands.registerCommand("Go to note", new GoToNote().withTimeout(1.5));
+        NamedCommands.registerCommand("Go to note", new GoToNote().withTimeout(2.5));
         
 
         chooser = AutoBuilder.buildAutoChooser();
