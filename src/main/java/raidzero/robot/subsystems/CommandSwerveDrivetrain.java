@@ -70,6 +70,36 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             startSimThread();
         }
 
+        LimelightHelpers.setCameraPose_RobotSpace(
+            "limelight-left",
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        );
+
+        LimelightHelpers.setCameraPose_RobotSpace(
+            "limelight-right",
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        );
+
+        LimelightHelpers.setCameraPose_RobotSpace(
+            "limelight-back",
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        );
+
         configureAutoBuilder();
     }
 
@@ -78,6 +108,36 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         if (Utils.isSimulation()) {
             startSimThread();
         }
+
+        LimelightHelpers.setCameraPose_RobotSpace(
+            "limelight-left",
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        );
+
+        LimelightHelpers.setCameraPose_RobotSpace(
+            "limelight-right",
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        );
+
+        LimelightHelpers.setCameraPose_RobotSpace(
+            "limelight-back",
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        );
 
         configureAutoBuilder();
     }
