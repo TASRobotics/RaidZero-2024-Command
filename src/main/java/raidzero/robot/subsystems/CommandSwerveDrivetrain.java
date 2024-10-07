@@ -15,6 +15,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -25,10 +26,8 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import raidzero.robot.Constants.VisionConstants;
 import raidzero.robot.TunerConstants;
 import raidzero.robot.wrappers.LimelightHelpers;
 
@@ -112,30 +111,30 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-left",
             0.0,
+            -0.26,
+            0.19,
             0.0,
-            0.0,
-            0.0,
-            0.0,
+            46.0,
             0.0
         );
 
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-right",
             0.0,
+            0.26,
+            0.19,
             0.0,
-            0.0,
-            0.0,
-            0.0,
+            46.0,
             0.0
         );
 
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-back",
+            -0.26,
             0.0,
+            0.19,
             0.0,
-            0.0,
-            0.0,
-            0.0,
+            46.0,
             0.0
         );
 
@@ -313,53 +312,81 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         //     );
         // }
 
-        LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2L = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
-
-        if (mt2L.tagCount == 0) {
-            doRejectUpdateLeft = true;
+        if (this.getPigeon2().getRate() > 720) {
+            shouldHaveVision = false;
         } else {
-            doRejectUpdateLeft = false;
+            shouldHaveVision = true;
         }
 
-        if (shouldHaveVision && !doRejectUpdateLeft) {
-            this.setVisionMeasurementStdDevs(VecBuilder.fill(.1,.1,9999999));
-            this.addVisionMeasurement(
-                mt2L.pose,
-                mt2L.timestampSeconds);
+        LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.PoseEstimate mt2L = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
+        
+
+        if (mt2L != null) {
+            if (mt2L.tagCount == 0) {
+                doRejectUpdateLeft = true;
+            } else {
+                doRejectUpdateLeft = false;
+            }
+
+            if (shouldHaveVision && !doRejectUpdateLeft) {
+                this.setVisionMeasurementStdDevs(VecBuilder.fill(.1,.1,9999999));
+                this.addVisionMeasurement(
+                    // mt2L.pose,
+                    new Pose2d(
+                        mt2L.pose.getX(),
+                        mt2L.pose.getY(),
+                        this.getPigeon2().getRotation2d()
+                    ),
+                    mt2L.timestampSeconds);
+            }
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2R = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
+        LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.PoseEstimate mt2R = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-right");
 
+        if (mt2R != null) {
+            if (mt2R.tagCount == 0) {
+                doRejectUpdateRight = true;
+            } else {
+                doRejectUpdateRight = false;
+            }
 
-        if (mt2R.tagCount == 0) {
-            doRejectUpdateRight = true;
-        } else {
-            doRejectUpdateRight = false;
+            if (shouldHaveVision && !doRejectUpdateRight) {
+                this.setVisionMeasurementStdDevs(VecBuilder.fill(.1,.1,9999999));
+                this.addVisionMeasurement(
+                    // mt2R.pose,
+                    new Pose2d(
+                        mt2R.pose.getX(),
+                        mt2R.pose.getY(),
+                        this.getPigeon2().getRotation2d()
+                    ),
+                    mt2R.timestampSeconds);
+            }
         }
 
-        if (shouldHaveVision && !doRejectUpdateRight) {
-            this.setVisionMeasurementStdDevs(VecBuilder.fill(.1,.1,9999999));
-            this.addVisionMeasurement(
-                mt2R.pose,
-                mt2R.timestampSeconds);
-        }
+        LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.PoseEstimate mt2B = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-back");
 
-        LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2B = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-back");
+        if (mt2B != null) {
+            if (mt2B.tagCount == 0) {
+                doRejectUpdateBack = true;
+            } else {
+                doRejectUpdateBack = false; 
+            }
 
-        if (mt2B.tagCount == 0) {
-            doRejectUpdateBack = true;
-        } else {
-            doRejectUpdateBack = false;
-        }
-
-        if (shouldHaveVision && !doRejectUpdateBack) {
-            this.setVisionMeasurementStdDevs(VecBuilder.fill(.1,.1,9999999));
-            this.addVisionMeasurement(
-                mt2B.pose,
-                mt2B.timestampSeconds);
+            if (shouldHaveVision && !doRejectUpdateBack) {
+                this.setVisionMeasurementStdDevs(VecBuilder.fill(.1,.1,9999999));
+                this.addVisionMeasurement(
+                    // mt2B.pose,
+                    new Pose2d(
+                        mt2B.pose.getX(),
+                        mt2B.pose.getY(),
+                        this.getPigeon2().getRotation2d()
+                    ),
+                    mt2B.timestampSeconds
+                );
+            }
         }
 
         field.setRobotPose(m_odometry.getEstimatedPosition());
