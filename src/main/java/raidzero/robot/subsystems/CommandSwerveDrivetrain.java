@@ -72,31 +72,31 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-left",
             0.0,
+            -0.26,
+            0.19,
             0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0
+            46.0,
+            90.0
         );
 
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-right",
             0.0,
+            0.26,
+            0.19,
             0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0
+            46.0,
+            -90.0
         );
 
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-back",
+            -0.26,
             0.0,
+            0.19,
             0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0
+            46.0,
+            180.0
         );
 
         configureAutoBuilder();
@@ -115,7 +115,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             0.19,
             0.0,
             46.0,
-            0.0
+            90.0
         );
 
         LimelightHelpers.setCameraPose_RobotSpace(
@@ -125,7 +125,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             0.19,
             0.0,
             46.0,
-            0.0
+            -90.0
         );
 
         LimelightHelpers.setCameraPose_RobotSpace(
@@ -135,7 +135,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             0.19,
             0.0,
             46.0,
-            0.0
+            180.0
         );
 
         configureAutoBuilder();
@@ -318,7 +318,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             shouldHaveVision = true;
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(90)).getDegrees(), 0, 46.0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2L = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
         
 
@@ -342,7 +342,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             }
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().minus(Rotation2d.fromDegrees(90)).getDegrees(), 0, 46.0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2R = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-right");
 
         if (mt2R != null) {
@@ -365,7 +365,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             }
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(180)).getDegrees(), 0, 46.0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2B = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-back");
 
         if (mt2B != null) {
