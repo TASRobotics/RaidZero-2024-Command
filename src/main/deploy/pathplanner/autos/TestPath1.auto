@@ -5,7 +5,7 @@
       "x": 2.181336858310715,
       "y": 0.8739390602690462
     },
-    "rotation": 90.0
+    "rotation": -90.77259136071426
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Path1"
+            "pathName": "RetuneOdom2"
           }
         }
       ]
