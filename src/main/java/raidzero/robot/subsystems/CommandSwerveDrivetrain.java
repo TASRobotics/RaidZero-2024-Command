@@ -532,8 +532,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             this::getRelativeSpeeds,
             (speeds) -> this.setControl(AutoRequest.withSpeeds(speeds)),
             new HolonomicPathFollowerConfig(
-                new PIDConstants(21.87, 0, 0), // 1.87
-                new PIDConstants(2.3, 0, 0), //6.45
+                new PIDConstants(10.0, 0, 0), // 21.87 0 0
+                new PIDConstants(2.3, 0, 0), // 2.3 0 0
                 3.5, // 3.5
                 0.24,
                 new ReplanningConfig()
