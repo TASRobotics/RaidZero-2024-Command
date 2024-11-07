@@ -75,34 +75,34 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-left",
             0.0,
-            -0.26,
-            0.19,
+            -0.254,
+            0.15875,
             0.0,
-            46.0,
+            35.0,
             90.0
         );
 
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-right",
             0.0,
-            0.26,
-            0.19,
+            0.254,
+            0.15875,
             0.0,
-            46.0,
+            35.0,
             -90.0
         );
 
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-back",
-            -0.26,
+            -0.254,
             0.0,
-            0.19,
+            0.18415,
             0.0,
-            46.0,
+            35.0,
             180.0
         );
 
-        LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(90)).getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(90)).getDegrees(), 0, 35.0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2L = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
         if (mt2L != null) {
             leftPrev = mt2L.pose;
@@ -110,7 +110,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             leftPrev = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().minus(Rotation2d.fromDegrees(90)).getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().minus(Rotation2d.fromDegrees(90)).getDegrees(), 0, 35.0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2R = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
         if (mt2R != null) {
             rightPrev = mt2R.pose;
@@ -118,7 +118,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             rightPrev = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(180)).getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(180)).getDegrees(), 0, 35.0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2B = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
         if (mt2B != null) {
             backPrev = mt2B.pose;
@@ -138,34 +138,34 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-left",
             0.0,
-            -0.26,
-            0.19,
+            -0.254,
+            0.15875,
             0.0,
-            46.0,
+            35.0,
             90.0
         );
 
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-right",
             0.0,
-            0.26,
-            0.19,
+            0.254,
+            0.15875,
             0.0,
-            46.0,
+            35.0,
             -90.0
         );
 
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-back",
-            -0.26,
+            -0.254,
             0.0,
-            0.19,
+            0.18415,
             0.0,
-            46.0,
+            35.0,
             180.0
         );
 
-        LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(90)).getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(90)).getDegrees(), 0, 35.0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2L = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
         if (mt2L != null) {
             leftPrev = mt2L.pose;
@@ -173,7 +173,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             leftPrev = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().minus(Rotation2d.fromDegrees(90)).getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().minus(Rotation2d.fromDegrees(90)).getDegrees(), 0, 35.0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2R = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
         if (mt2R != null) {
             rightPrev = mt2R.pose;
@@ -181,7 +181,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             rightPrev = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(180)).getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(180)).getDegrees(), 0, 35.0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2B = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
         if (mt2B != null) {
             backPrev = mt2B.pose;
@@ -369,7 +369,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             shouldHaveVision = true;
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(90)).getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(90)).getDegrees(), 0, 35.0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2L = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
         
 
@@ -410,7 +410,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             leftPrev = mt2L.pose;
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().minus(Rotation2d.fromDegrees(90)).getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().minus(Rotation2d.fromDegrees(90)).getDegrees(), 0, 35.0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2R = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-right");
 
         if (mt2R != null && mt2R.pose != null) {
@@ -439,6 +439,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
             if (mt2R.rawFiducials.length > 0 && mt2R.rawFiducials[0] != null) {
                 SmartDashboard.putNumber("rightamb", mt2R.rawFiducials[0].ambiguity);
+                SmartDashboard.putNumber("rightDistCam", mt2R.rawFiducials[0].distToCamera);
             }
 
         }
@@ -447,7 +448,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             rightPrev = mt2R.pose;
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(180)).getDegrees(), 0, 46.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(180)).getDegrees(), 0, 35.0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2B = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-back");
 
         if (mt2B != null && mt2B.pose != null) {
