@@ -20,3 +20,4 @@
  - Import statements: let Java RedHat extension take care of it
  - Spaces in code where necessary (Eg, between methods, between operations such as + or -)
  - Braces are on the same line as method declarations
+ - Always add Javadoc to methods!!
