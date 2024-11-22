@@ -78,7 +78,16 @@ public class RobotContainer {
         joystick.rightBumper().onTrue(new InstantCommand(() -> drivetrain.getPigeon2().setYaw(0)));
 
         // reset the field-centric heading on left bumper press
-        joystick.x().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
+        //! Need to use `new Rotation2d()` since field heading is not reset in 2024 CTRE lib (Should be fixed in 2025)
+        joystick.x().onTrue(drivetrain.runOnce(() -> {
+            drivetrain.seedFieldRelative(
+                new Pose2d(
+                    drivetrain.getPoseEstimator().getEstimatedPosition().getTranslation(),
+                    new Rotation2d()
+                )
+            );
+        }));
+
         joystick.y().onTrue(Commands.runOnce(() -> {
             drivetrain.initializeLimelightOdometry();
         }));

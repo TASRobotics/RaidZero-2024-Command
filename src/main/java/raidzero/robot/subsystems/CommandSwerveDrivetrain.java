@@ -181,7 +181,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 
-    SwerveDrivePoseEstimator getPoseEstimator() {
+    public SwerveDrivePoseEstimator getPoseEstimator() {
         return this.m_odometry;
     }
 
@@ -622,8 +622,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                 );
             }
         }
-
-        this.getPigeon2().setYaw(0.0);
 
         System.out.println("Done LL odom! at t: " + Timer.getFPGATimestamp());
     }
