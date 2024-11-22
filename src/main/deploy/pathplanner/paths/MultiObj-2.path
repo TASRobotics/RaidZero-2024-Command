@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.99,
-        "y": 0.64
+        "x": 7.561735699665484,
+        "y": 0.8065777465899138
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.99,
-        "y": 0.6399999999999999
+        "x": 6.561735699665484,
+        "y": 0.8065777465899137
       },
       "isLocked": false,
       "linkedName": null
@@ -32,12 +32,12 @@
     },
     {
       "anchor": {
-        "x": 1.0639939666593456,
-        "y": 4.080302727627994
+        "x": 1.065916309239745,
+        "y": 4.305291279270959
       },
       "prevControl": {
-        "x": 1.4048307100172925,
-        "y": 2.979886956215194
+        "x": 1.406753052597692,
+        "y": 3.204875507858159
       },
       "nextControl": null,
       "isLocked": false,
@@ -59,9 +59,9 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Multiobj",
   "previewStartingState": {
-    "rotation": 30.96137549648736,
+    "rotation": 11.768288932020523,
     "velocity": 0
   },
   "useDefaultConstraints": true
