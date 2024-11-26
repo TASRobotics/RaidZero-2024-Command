@@ -27,8 +27,8 @@ public class GoToNote extends Command {
     public void execute() {
         swerve.setControl(AutoRequest.withSpeeds(
             ChassisSpeeds.fromRobotRelativeSpeeds(
-                0.0,
                 2.25,
+                0.0,
                 neuralLL.getNoteTx() * -0.125,
                 swerve.getPigeon2().getRotation2d()
             )
