@@ -29,35 +29,23 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [
-    {
-      "name": "RotationalCorrection",
-      "minWaypointRelativePos": 0.2,
-      "maxWaypointRelativePos": 0.8,
-      "constraints": {
-        "maxVelocity": 0.5,
-        "maxAcceleration": 2.0,
-        "maxAngularVelocity": 60.0,
-        "maxAngularAcceleration": 720.0
-      }
-    }
-  ],
+  "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 0.75,
+    "maxVelocity": 2.0,
     "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0,
+    "rotation": 0.7027185563107105,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 89.73338591918117,
+    "rotation": 0.6916009313532133,
     "velocity": 0
   },
   "useDefaultConstraints": false
