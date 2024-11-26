@@ -80,6 +80,7 @@ public class RobotContainer {
         // reset the field-centric heading on left bumper press
         //! Need to use `new Rotation2d()` since field heading is not reset in 2024 CTRE lib (Should be fixed in 2025)
         joystick.x().onTrue(drivetrain.runOnce(() -> {
+            drivetrain.getPigeon2().setYaw(0.0);
             drivetrain.seedFieldRelative(
                 new Pose2d(
                     drivetrain.getPoseEstimator().getEstimatedPosition().getTranslation(),
