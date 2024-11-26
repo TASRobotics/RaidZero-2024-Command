@@ -40,7 +40,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
-    private double llUpdateThreshold = 2.0;
+    private double llUpdateThreshold = 0.5;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private final Rotation2d BlueAlliancePerspectiveRotation = Rotation2d.fromDegrees(0);
@@ -70,9 +70,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             startSimThread();
         }
 
-        this.initializeLimelightOdometry();
-
         configureAutoBuilder();
+
+        this.initializeLimelightOdometry();
     }
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
@@ -81,9 +81,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             startSimThread();
         }
 
-        this.initializeLimelightOdometry();
-
         configureAutoBuilder();
+
+        this.initializeLimelightOdometry();
     }
 
     public SwerveModulePosition[] getModulePositions() {
@@ -192,12 +192,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             SmartDashboard.putBoolean("Lvalid", !validPose(mt2L.pose));
             // SmartDashboard.putBoolean("LDist", !(getLLposesDist(mt2L.pose, leftPrev) < 0.3));
             // SmartDashboard.putNumber("LdistReal", getLLposesDist(mt2L.pose, leftPrev));
+            SmartDashboard.putNumber("Left Area", LimelightHelpers.getTA("limelight-left"));
             ignoreLeftLime = mt2L.tagCount == 0 ||
                             !validPose(mt2L.pose) ||
+                            (LimelightHelpers.getTA("limelight-left") < 0.1) ||
                             (getLLposesDist(mt2L.pose, currPose) > llUpdateThreshold) ||
                             (mt2L.rawFiducials.length > 0 && mt2L.rawFiducials[0].ambiguity > 0.5 && mt2L.rawFiducials[0].distToCamera > 3.5);
 
-            if (ignoreAllLimes && !ignoreLeftLime) {
+            if (!ignoreAllLimes && !ignoreLeftLime) {
                 SmartDashboard.putBoolean("Lpose", true);
 
                 this.addVisionMeasurement(
@@ -234,12 +236,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         if (mt2R != null && mt2R.pose != null) {
             // SmartDashboard.putBoolean("Rpose", validPose(mt2R.pose));
             // SmartDashboard.putBoolean("Rpose", !(mt2R.tagCount == 0 || /*mt2R.tagCount > 1 ||*/ !validPose(mt2R.pose)  || (getLLposesDist(mt2R.pose, rightPrev) > 0.3)));
+            SmartDashboard.putNumber("Right Area", LimelightHelpers.getTA("limelight-right"));
             ignoreRightLime = mt2R.tagCount == 0 ||
                             !validPose(mt2R.pose) ||
+                            (LimelightHelpers.getTA("limelight-right") < 0.1) ||
                             (getLLposesDist(mt2R.pose, currPose) > llUpdateThreshold) ||
                             (mt2R.rawFiducials.length > 0 && mt2R.rawFiducials[0].ambiguity > 0.5 && mt2R.rawFiducials[0].distToCamera > 3.5);
 
-            if (ignoreAllLimes && !ignoreRightLime) {
+            if (!ignoreAllLimes && !ignoreRightLime) {
                 SmartDashboard.putBoolean("Rpose",true);
 
                 this.addVisionMeasurement(
@@ -277,12 +281,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         if (mt2B != null && mt2B.pose != null) {
             // SmartDashboard.putBoolean("Bpose", validPose(mt2B.pose));
             // SmartDashboard.putBoolean("Bpose", !(mt2B.tagCount == 0 || /*mt2B.tagCount > 1 ||*/ !validPose(mt2B.pose) || (getLLposesDist(mt2B.pose, backPrev) > 0.3)));
+            SmartDashboard.putNumber("Rear Area", LimelightHelpers.getTA("limelight-back"));
             ignoreRearLime = mt2B.tagCount == 0 ||
                             !validPose(mt2B.pose) ||
+                            (LimelightHelpers.getTA("limelight-back") < 0.1) ||
                             (getLLposesDist(mt2B.pose, currPose) > llUpdateThreshold) ||
                             (mt2B.rawFiducials.length > 0 && mt2B.rawFiducials[0].ambiguity > 0.5 && mt2B.rawFiducials[0].distToCamera > 3.5);
 
-            if (ignoreAllLimes && !ignoreRearLime) {
+            if (!ignoreAllLimes && !ignoreRearLime) {
                 SmartDashboard.putBoolean("Bpose",true);
 
                 this.addVisionMeasurement(
