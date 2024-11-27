@@ -210,7 +210,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                         this.getPigeon2().getRotation2d()
                     ),
                     mt2L.timestampSeconds,
-                    VecBuilder.fill(.1,.1,9999999)
+                    VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-left"))
                 );
             } else {
                 SmartDashboard.putBoolean("Lpose", false);
@@ -254,7 +254,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                         this.getPigeon2().getRotation2d()
                     ),
                     mt2R.timestampSeconds,
-                    VecBuilder.fill(.1,.1,9999999)
+                    VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-right"))
                 );
             } else {
                 SmartDashboard.putBoolean("Rpose", false);
@@ -299,7 +299,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                         this.getPigeon2().getRotation2d()
                     ),
                     mt2B.timestampSeconds,
-                    VecBuilder.fill(.1,.1,9999999)
+                    VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-back"))
                 );
             } else {
                 SmartDashboard.putBoolean("Bpose", false);
@@ -429,7 +429,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                         this.getPigeon2().getRotation2d()
                     ),
                     mt2L.timestampSeconds,
-                    VecBuilder.fill(.1,.1,9999999)
+                    VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-left"))
                 );
             }
         }
@@ -453,7 +453,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                         this.getPigeon2().getRotation2d()
                     ),
                     mt2R.timestampSeconds,
-                    VecBuilder.fill(.1,.1,9999999)
+                    VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-right"))
                 );
             }
 
@@ -478,7 +478,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                         this.getPigeon2().getRotation2d()
                     ),
                     mt2B.timestampSeconds,
-                    VecBuilder.fill(.1,.1,9999999)
+                    VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-back"))
                 );
             }
         }
