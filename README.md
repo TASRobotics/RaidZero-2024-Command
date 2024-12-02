@@ -1,7 +1,7 @@
 ## Conventions:
  - Constants: All caps with underscores (eg: `SOME_CONSTANT_VALUE`)
  - Member variables: no "m" with camelCase (eg: `someMemberVariable` instead of `mSomeMemberVariable`)
- - Subsystems have their own static instance in their own class
+ - Subsystems should be in the form of a singleton class
  - Class method order: Getters, setters, other methods (alphabetically)
  - Member def order: Grouped logically..., but Talon configs then subsystem static object getter comes last
    - Sample order:
