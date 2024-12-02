@@ -32,12 +32,12 @@
     },
     {
       "anchor": {
-        "x": 7.204570414846962,
-        "y": 1.9088663569623863
+        "x": 7.34510045339634,
+        "y": 1.4837481077539865
       },
       "prevControl": {
-        "x": 6.301676599961531,
-        "y": 0.642306977748102
+        "x": 6.44220663851091,
+        "y": 0.21718872853970217
       },
       "nextControl": null,
       "isLocked": false,
@@ -59,7 +59,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Multiobj",
+  "folder": "MultiObj1",
   "previewStartingState": {
     "rotation": 122.15914402404378,
     "velocity": 0

@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.5089169846192605,
-      "y": 2.0644968454824224
+      "x": 0.36544187211056145,
+      "y": 1.9088663569623863
     },
     "rotation": 0
   },
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MultiObj-1"
+            "pathName": "Multobj2-1"
           }
         },
         {
@@ -26,13 +26,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MultiObj-2"
+            "pathName": "Multiobj2-2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "MultiObj-3"
+            "pathName": "Multiobj2-3"
           }
         },
         {
@@ -44,7 +44,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MultiObj-4"
+            "pathName": "Multiobj2-4"
           }
         }
       ]

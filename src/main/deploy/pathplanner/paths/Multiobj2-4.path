@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.8917403433857882,
-        "y": 4.060826342293255
+        "x": 7.63,
+        "y": 7.45
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.9112167287205282,
-        "y": 2.522191900848809
+        "x": 3.421970210559535,
+        "y": 5.925683292165444
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.248382968889307,
-        "y": 1.811303836130804
+        "x": 1.2437546130441748,
+        "y": 5.4806715034257465
       },
       "prevControl": {
-        "x": 2.8363450321206702,
-        "y": 1.8210420287981743
+        "x": 2.262597392527166,
+        "y": 5.527514849608872
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,21 +32,21 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.5,
+    "maxVelocity": 3.0,
     "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0,
-    "rotateFast": false
+    "rotation": -177.8389205117735,
+    "rotateFast": true
   },
   "reversed": false,
-  "folder": "Testing",
+  "folder": "MultiObj2",
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }
