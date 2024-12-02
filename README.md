@@ -21,3 +21,9 @@
  - Spaces in code where necessary (Eg, between methods, between operations such as + or -)
  - Braces are on the same line as method declarations
  - Always add Javadoc to methods!!
+ - Branches:
+   - Base branch should contain subsystem name (Eg, `arm` or `swerve`)
+   - Child branches should:
+     - Be appended to parent branch's name with a `/`
+     - Describe the feature being worked on (Eg, `arm/pid` or `swerve/vision-odometry`)
+     - Should not be long!
