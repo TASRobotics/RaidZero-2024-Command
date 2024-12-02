@@ -89,7 +89,7 @@ public class RobotContainer {
             );
         }));
 
-        joystick.y().onTrue(Commands.runOnce(() -> drivetrain.initializeLimelightOdometry()));
+        joystick.y().whileTrue(Commands.runOnce(() -> drivetrain.initializeLimelightOdometry()));
 
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
