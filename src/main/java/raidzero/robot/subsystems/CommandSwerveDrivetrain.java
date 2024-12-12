@@ -29,8 +29,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
-    private TunerConstants constants = new TunerConstants();
-
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private final Rotation2d BlueAlliancePerspectiveRotation = Rotation2d.fromDegrees(0);
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
@@ -40,11 +38,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private Field2d field = new Field2d();
 
-    // private Vision vision = Vision.getSystem();
+    private static CommandSwerveDrivetrain swerveSys;
 
-    private static CommandSwerveDrivetrain DriveTrain;
-
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
+    private CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
             SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules);
         if (Utils.isSimulation()) {
@@ -52,7 +48,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
     }
 
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
+    private CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
         if (Utils.isSimulation()) {
             startSimThread();
@@ -62,7 +58,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public SwerveModulePosition[] getModulePositions() {
         SwerveModulePosition[] positions = new SwerveModulePosition[4];
 
-        // not sure if signlals should be refreshed or not... im sure it's fine
+        // I'm not sure what refreshing the signals does and at this point i'm too
+        // afraid to ask
         positions[0] = Modules[0].getPosition(false);
         positions[1] = Modules[1].getPosition(false);
         positions[2] = Modules[2].getPosition(false);
@@ -100,20 +97,17 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     @Override
     public void periodic() {
-        /* Periodically try to apply the operator perspective */
         /*
+         * Periodically try to apply the operator perspective
          * If we haven't applied the operator perspective before, then we should apply
          * it regardless of DS state
-         */
-        /*
+         * 
          * This allows us to correct the perspective in case the robot code restarts
          * mid-match
-         */
-        /*
+         *
          * Otherwise, only check and apply the operator perspective if the DS is
          * disabled
-         */
-        /*
+         *
          * This ensures driving behavior doesn't change until an explicit disable event
          * occurs during testing
          */
@@ -130,14 +124,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public static CommandSwerveDrivetrain system() {
-        if (DriveTrain == null) {
-            DriveTrain = new CommandSwerveDrivetrain(
+        if (swerveSys == null) {
+            swerveSys = new CommandSwerveDrivetrain(
                     TunerConstants.DrivetrainConstants,
                     TunerConstants.FrontLeft,
                     TunerConstants.FrontRight,
                     TunerConstants.BackLeft,
                     TunerConstants.BackRight);
         }
-        return DriveTrain;
+        return swerveSys;
     }
 }
