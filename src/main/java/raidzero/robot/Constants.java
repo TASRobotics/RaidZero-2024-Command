@@ -166,7 +166,7 @@ public class Constants {
     
     public static final boolean ENABLE_FOC = true;
 
-    public static final double STICK_DEADBAND = 0.02;
+    public static final double STICK_DEADBAND = 0.2;
 
 }
     
