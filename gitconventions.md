@@ -1,0 +1,55 @@
+# Git conventions
+
+## Commits
+
+- Commit names should be short, capitalized, and in imperative case
+
+## Branches
+
+- Base branch should contain subsystem name (Eg, `arm` or `swerve`) ***or*** "global feature" name (Eg, `auto`)
+- Child branches should:
+    - Be appended to parent branch's name with a `/`
+    - Describe the feature being worked on (Eg, `arm/pid` or `swerve/vision-odometry`)
+- Names should not be long!
+
+## Pull requests
+
+### Title
+
+- Descriptive and concise
+- Subsystem: Feature (similar to the branch naming scheme but with colon)
+Eg: `Arm: Add PID`, `Arm: Fix PID`, `Intake: Fix intake velocity`
+
+### Description
+
+- Must be descriptive:
+    - Include what you have changed / improved in bullet points
+Eg:
+```
+- Adjust arm home position
+```
+```
+- Retune arm PID constants
+```
+
+### Reviewers
+
+- MINIMUM 2 prog heads 
+    1. Programming captain
+    2. Relevant programming subsystem head
+- MINIMUM 1 mentor
+
+### Assignees
+
+- Developers of the branch MUST be assigned to the PR
+
+***REVIEWERS AND ASSIGNEES MUST BE ASSIGNED FOR MAIN***
+
+### Notes
+
+- PR's should not be massive and contain 10 features. It should be specific to one feature only.
+- PR's should ***only*** be created when merging subsystems to `main`
+
+## Merges
+
+Always merge (***NOT PR***) feature branch to parent branch before creating a PR to merge subsystem branch into `main`
