@@ -3,6 +3,8 @@
 ## Commits
 
 - Commit names should be short, capitalized, and in imperative case
+- Commits should contain one edit, not 10 edits
+    - One edit does not mean one file, but one feature that was changed/fixed/added
 
 ## Branches
 
