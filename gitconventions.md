@@ -55,3 +55,9 @@ Eg:
 ## Merges
 
 Always merge (***NOT PR***) feature branch to parent branch before creating a PR to merge subsystem branch into `main`
+
+## General notes
+
+When committing the merge, Git should automatically generate a commit message. Please use those default messeages to maintain consistency.
+
+Eg, `Merge branch 'a' into b` or `Merge pull request #1 from b`
