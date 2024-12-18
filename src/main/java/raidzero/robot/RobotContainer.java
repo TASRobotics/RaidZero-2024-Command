@@ -1,10 +1,4 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package raidzero.robot;
-
-import org.ejml.sparse.csc.mult.MatrixVectorMultWithSemiRing_DSCC;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
@@ -29,17 +23,16 @@ public class RobotContainer {
     private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.system(); // My drivetrain
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * Constants.STICK_DEADBAND)
-            .withRotationalDeadband(MaxAngularRate * Constants.STICK_DEADBAND) // Add a 10% deadband
+            .withDeadband(MaxSpeed * Constants.Swerve.STICK_DEADBAND)
+            .withRotationalDeadband(MaxAngularRate * Constants.Swerve.STICK_DEADBAND) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final SwerveRequest.FieldCentricFacingAngle driveWithAngle = new SwerveRequest.FieldCentricFacingAngle()
-            .withDeadband(MaxSpeed * Constants.STICK_DEADBAND)
-            .withRotationalDeadband(MaxAngularRate * Constants.STICK_DEADBAND) // Add a 10% deadband
+            .withDeadband(MaxSpeed * Constants.Swerve.STICK_DEADBAND)
+            .withRotationalDeadband(MaxAngularRate * Constants.Swerve.STICK_DEADBAND) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -56,17 +49,39 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+        driveWithAngle.HeadingController.setPID(Constants.Swerve.DIRECTION_SNAP_P, Constants.Swerve.DIRECTION_SNAP_I,
+                Constants.Swerve.DIRECTION_SNAP_D);
+
         drivetrain.setDefaultCommand(
                 drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
                         .withVelocityY(-joystick.getLeftX() * MaxSpeed)
                         .withRotationalRate(-joystick.getRightX() * MaxAngularRate)));
 
         // on right trigger make the rotation equal to the direction the stick is facing
-        joystick.rightTrigger()
+        // this can be adapted to change to the angle of the game elemtents calculated
+        // with vision in the future
+        joystick.povUp()
                 .whileTrue(drivetrain.applyRequest(() -> driveWithAngle.withVelocityX(-joystick.getLeftY() * MaxSpeed)
                         .withVelocityY(-joystick.getLeftX() * MaxSpeed)
                         .withTargetDirection(
-                                Rotation2d.fromRadians(Math.atan2(-joystick.getRightY(), joystick.getRightX())))));
+                                Rotation2d.fromDegrees(0))));
+
+        joystick.povLeft()
+                .whileTrue(drivetrain.applyRequest(() -> driveWithAngle.withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                        .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                        .withTargetDirection(
+                                Rotation2d.fromDegrees(90))));
+
+        joystick.povDown()
+                .whileTrue(drivetrain.applyRequest(() -> driveWithAngle.withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                        .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                        .withTargetDirection(
+                                Rotation2d.fromDegrees(180))));
+        joystick.povRight()
+                .whileTrue(drivetrain.applyRequest(() -> driveWithAngle.withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                        .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                        .withTargetDirection(
+                                Rotation2d.fromDegrees(270))));
 
         // Brake on A button press
         joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
