@@ -4,6 +4,8 @@
 
 package raidzero.robot;
 
+import org.ejml.sparse.csc.mult.MatrixVectorMultWithSemiRing_DSCC;
+
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
@@ -27,9 +29,15 @@ public class RobotContainer {
     private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.system(); // My drivetrain
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * Constants.STICK_DEADBAND).withRotationalDeadband(MaxAngularRate * Constants.STICK_DEADBAND) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
-                                                                     // driving in open loop
+            .withDeadband(MaxSpeed * Constants.STICK_DEADBAND)
+            .withRotationalDeadband(MaxAngularRate * Constants.STICK_DEADBAND) // Add a 10% deadband
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    private final SwerveRequest.FieldCentricFacingAngle driveWithAngle = new SwerveRequest.FieldCentricFacingAngle()
+            .withDeadband(MaxSpeed * Constants.STICK_DEADBAND)
+            .withRotationalDeadband(MaxAngularRate * Constants.STICK_DEADBAND) // Add a 10% deadband
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
@@ -48,17 +56,20 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        drivetrain.setDefaultCommand( 
+        drivetrain.setDefaultCommand(
                 drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
                         .withVelocityY(-joystick.getLeftX() * MaxSpeed)
                         .withRotationalRate(-joystick.getRightX() * MaxAngularRate)));
 
+        // on right trigger make the rotation equal to the direction the stick is facing
+        joystick.rightTrigger()
+                .whileTrue(drivetrain.applyRequest(() -> driveWithAngle.withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                        .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                        .withTargetDirection(
+                                Rotation2d.fromRadians(Math.atan2(-joystick.getRightY(), joystick.getRightX())))));
+
         // Brake on A button press
         joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-
-        // Point wheels at the joystick direction on B button press
-        joystick.b().whileTrue(drivetrain.applyRequest(
-                () -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
 
         // reset the pigeon2 heading on right bumper press
         joystick.rightBumper().onTrue(new InstantCommand(() -> drivetrain.getPigeon2().setYaw(0)));
