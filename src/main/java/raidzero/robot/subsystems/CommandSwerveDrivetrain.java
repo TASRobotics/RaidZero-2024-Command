@@ -40,7 +40,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
-    private double llUpdateThreshold = 0.75;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private final Rotation2d BlueAlliancePerspectiveRotation = Rotation2d.fromDegrees(0);
@@ -62,6 +61,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private boolean ignoreLeftLime = false;
     private boolean ignoreRightLime = false;
     private boolean ignoreAllLimes = false;
+
+    private LimelightHelpers.PoseEstimate limeLeft, limeRight, limeBack;
+    private LimelightHelpers.PoseEstimate limeLeftPrev, limeRightPrev, limeBackPrev;
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
             SwerveModuleConstants... modules) {
@@ -179,144 +181,91 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             ignoreRearLime = false;
         }
 
-        Pose2d currPose = this.getPoseEstimator().getEstimatedPosition();
-
         LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(90)).getDegrees(), this.getPigeon2().getRate(), 35.0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2L = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
-        
+        limeLeft = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
 
-        if (mt2L != null && mt2L.pose != null) {
-            // SmartDashboard.putBoolean("Lpose", validPose(mt2L.pose));
-            // SmartDashboard.putBoolean("Lpose", !(mt2L.tagCount == 0 || /*mt2L.tagCount > 1 ||*/ !validPose(mt2L.pose)  || (getLLposesDist(mt2L.pose, leftPrev) > 0.3)));
-            SmartDashboard.putBoolean("Lcount", mt2L.tagCount == 0);
-            SmartDashboard.putBoolean("Lvalid", !validPose(mt2L.pose));
-            // SmartDashboard.putBoolean("LDist", !(getLLposesDist(mt2L.pose, leftPrev) < 0.3));
-            // SmartDashboard.putNumber("LdistReal", getLLposesDist(mt2L.pose, leftPrev));
-            SmartDashboard.putNumber("Left Area", LimelightHelpers.getTA("limelight-left"));
-            ignoreLeftLime = mt2L.tagCount == 0 ||
-                            !validPose(mt2L.pose) ||
+        if (limeLeft != null && limeLeft.pose != null) {
+            ignoreLeftLime = limeLeft.tagCount == 0 ||
+                            !validPose(limeLeft.pose) ||
                             (LimelightHelpers.getTA("limelight-left") < 0.1) ||
-                            (getLLposesDist(mt2L.pose, currPose) > llUpdateThreshold) ||
-                            (mt2L.rawFiducials.length > 0 && mt2L.rawFiducials[0].ambiguity > 0.5 && mt2L.rawFiducials[0].distToCamera > 3.5);
+                            (getLLposesDist(limeLeft.pose, limeLeftPrev.pose) > ((limeLeft.timestampSeconds - limeLeftPrev.timestampSeconds) * TunerConstants.kSpeedAt12VoltsMps)) ||
+                            (limeLeft.rawFiducials.length > 0 && limeLeft.rawFiducials[0].ambiguity > 0.5 && limeLeft.rawFiducials[0].distToCamera > 3.5);
 
             if (!ignoreAllLimes && !ignoreLeftLime) {
                 SmartDashboard.putBoolean("Lpose", true);
 
                 this.addVisionMeasurement(
-                    // mt2L.pose,
                     new Pose2d(
-                        mt2L.pose.getX(),
-                        mt2L.pose.getY(),
+                        limeLeft.pose.getX(),
+                        limeLeft.pose.getY(),
                         this.getPigeon2().getRotation2d()
                     ),
-                    mt2L.timestampSeconds,
+                    limeLeft.timestampSeconds,
                     VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-left"))
                 );
             } else {
                 SmartDashboard.putBoolean("Lpose", false);
             }
 
-            llfield.setRobotPose(
-                new Pose2d(
-                    mt2L.pose.getX(),
-                    mt2L.pose.getY(),
-                    this.getPigeon2().getRotation2d()
-                )
-            );
-
-            if (mt2L.rawFiducials.length > 0 && mt2L.rawFiducials[0] != null) {
-                SmartDashboard.putNumber("leftamb", mt2L.rawFiducials[0].ambiguity);
-                SmartDashboard.putNumber("LDistToTag", mt2L.rawFiducials[0].distToCamera);
-            }
+            limeLeftPrev = limeLeft;
         }
 
         LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().minus(Rotation2d.fromDegrees(90)).getDegrees(), this.getPigeon2().getRate(), 35.0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2R = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-right");
+        limeRight = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-right");
 
-        if (mt2R != null && mt2R.pose != null) {
-            // SmartDashboard.putBoolean("Rpose", validPose(mt2R.pose));
-            // SmartDashboard.putBoolean("Rpose", !(mt2R.tagCount == 0 || /*mt2R.tagCount > 1 ||*/ !validPose(mt2R.pose)  || (getLLposesDist(mt2R.pose, rightPrev) > 0.3)));
-            SmartDashboard.putNumber("Right Area", LimelightHelpers.getTA("limelight-right"));
-            ignoreRightLime = mt2R.tagCount == 0 ||
-                            !validPose(mt2R.pose) ||
+        if (limeRight != null && limeRight.pose != null) {
+            ignoreRightLime = limeRight.tagCount == 0 ||
+                            !validPose(limeRight.pose) ||
                             (LimelightHelpers.getTA("limelight-right") < 0.1) ||
-                            (getLLposesDist(mt2R.pose, currPose) > llUpdateThreshold) ||
-                            (mt2R.rawFiducials.length > 0 && mt2R.rawFiducials[0].ambiguity > 0.5 && mt2R.rawFiducials[0].distToCamera > 3.5);
+                            (getLLposesDist(limeRight.pose, limeRightPrev.pose) > ((limeRight.timestampSeconds - limeRightPrev.timestampSeconds) * TunerConstants.kSpeedAt12VoltsMps)) ||
+                            (limeRight.rawFiducials.length > 0 && limeRight.rawFiducials[0].ambiguity > 0.5 && limeRight.rawFiducials[0].distToCamera > 3.5);
 
             if (!ignoreAllLimes && !ignoreRightLime) {
                 SmartDashboard.putBoolean("Rpose",true);
 
                 this.addVisionMeasurement(
-                    // mt2R.pose,
                     new Pose2d(
-                        mt2R.pose.getX(),
-                        mt2R.pose.getY(),
+                        limeRight.pose.getX(),
+                        limeRight.pose.getY(),
                         this.getPigeon2().getRotation2d()
                     ),
-                    mt2R.timestampSeconds,
+                    limeRight.timestampSeconds,
                     VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-right"))
                 );
             } else {
                 SmartDashboard.putBoolean("Rpose", false);
             }
 
-            llfield.setRobotPose(
-                new Pose2d(
-                    mt2R.pose.getX(),
-                    mt2R.pose.getY(),
-                    this.getPigeon2().getRotation2d()
-                )
-            );
-
-            if (mt2R.rawFiducials.length > 0 && mt2R.rawFiducials[0] != null) {
-                SmartDashboard.putNumber("rightamb", mt2R.rawFiducials[0].ambiguity);
-                SmartDashboard.putNumber("RDistToCam", mt2R.rawFiducials[0].distToCamera);
-            }
-
+            limeRightPrev = limeRight;
         }
 
         LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(180)).getDegrees(), this.getPigeon2().getRate(), 35.0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2B = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-back");
+        limeBack = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-back");
 
-        if (mt2B != null && mt2B.pose != null) {
-            // SmartDashboard.putBoolean("Bpose", validPose(mt2B.pose));
-            // SmartDashboard.putBoolean("Bpose", !(mt2B.tagCount == 0 || /*mt2B.tagCount > 1 ||*/ !validPose(mt2B.pose) || (getLLposesDist(mt2B.pose, backPrev) > 0.3)));
-            SmartDashboard.putNumber("Rear Area", LimelightHelpers.getTA("limelight-back"));
-            ignoreRearLime = mt2B.tagCount == 0 ||
-                            !validPose(mt2B.pose) ||
+        if (limeBack != null && limeBack.pose != null) {
+            ignoreRearLime = limeBack.tagCount == 0 ||
+                            !validPose(limeBack.pose) ||
                             (LimelightHelpers.getTA("limelight-back") < 0.1) ||
-                            (getLLposesDist(mt2B.pose, currPose) > llUpdateThreshold) ||
-                            (mt2B.rawFiducials.length > 0 && mt2B.rawFiducials[0].ambiguity > 0.5 && mt2B.rawFiducials[0].distToCamera > 3.5);
+                            (getLLposesDist(limeBack.pose, limeBackPrev.pose) > ((limeBack.timestampSeconds - limeBackPrev.timestampSeconds) * TunerConstants.kSpeedAt12VoltsMps)) ||
+                            (limeBack.rawFiducials.length > 0 && limeBack.rawFiducials[0].ambiguity > 0.5 && limeBack.rawFiducials[0].distToCamera > 3.5);
 
             if (!ignoreAllLimes && !ignoreRearLime) {
                 SmartDashboard.putBoolean("Bpose",true);
 
                 this.addVisionMeasurement(
-                    // mt2B.pose,
                     new Pose2d(
-                        mt2B.pose.getX(),
-                        mt2B.pose.getY(),
+                        limeBack.pose.getX(),
+                        limeBack.pose.getY(),
                         this.getPigeon2().getRotation2d()
                     ),
-                    mt2B.timestampSeconds,
+                    limeBack.timestampSeconds,
                     VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-back"))
                 );
             } else {
                 SmartDashboard.putBoolean("Bpose", false);
             }
 
-            llfield.setRobotPose(
-                new Pose2d(
-                    mt2B.pose.getX(),
-                    mt2B.pose.getY(),
-                    this.getPigeon2().getRotation2d()
-                )
-            );
-
-            if (mt2B.rawFiducials.length > 0 && mt2B.rawFiducials[0] != null) {
-                SmartDashboard.putNumber("Backamb", mt2B.rawFiducials[0].ambiguity);
-                SmartDashboard.putNumber("BDistToTag", mt2B.rawFiducials[0].distToCamera);
-            }
+            limeBackPrev = limeBack;
         }
 
         field.setRobotPose(m_odometry.getEstimatedPosition());
@@ -411,48 +360,46 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         );
 
         LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(90)).getDegrees(), this.getPigeon2().getRate(), 35.0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2L = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
+        limeLeft = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
         
-        if (mt2L != null && mt2L.pose != null) {
-            ignoreLeftLime = mt2L.tagCount == 0 ||
-                            !validPose(mt2L.pose) ||
-                            (mt2L.rawFiducials.length > 0 && mt2L.rawFiducials[0].ambiguity > 0.5 && mt2L.rawFiducials[0].distToCamera > 3.5);
+        if (limeLeft != null && limeLeft.pose != null) {
+            ignoreLeftLime = limeLeft.tagCount == 0 ||
+                            !validPose(limeLeft.pose) ||
+                            (limeLeft.rawFiducials.length > 0 && limeLeft.rawFiducials[0].ambiguity > 0.5 && limeLeft.rawFiducials[0].distToCamera > 3.5);
 
             if (!ignoreAllLimes && !ignoreLeftLime) {
                 SmartDashboard.putBoolean("Lpose", true);
 
                 this.addVisionMeasurement(
-                    // mt2L.pose,
                     new Pose2d(
-                        mt2L.pose.getX(),
-                        mt2L.pose.getY(),
+                        limeLeft.pose.getX(),
+                        limeLeft.pose.getY(),
                         this.getPigeon2().getRotation2d()
                     ),
-                    mt2L.timestampSeconds,
+                    limeLeft.timestampSeconds,
                     VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-left"))
                 );
             }
         }
 
         LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().minus(Rotation2d.fromDegrees(90)).getDegrees(), this.getPigeon2().getRate(), 35.0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2R = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-right");
+        limeRight = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-right");
 
-        if (mt2R != null && mt2R.pose != null) {
-            ignoreRightLime = mt2R.tagCount == 0 ||
-                            !validPose(mt2R.pose) ||
-                            (mt2R.rawFiducials.length > 0 && mt2R.rawFiducials[0].ambiguity > 0.5 && mt2R.rawFiducials[0].distToCamera > 3.5);
+        if (limeRight != null && limeRight.pose != null) {
+            ignoreRightLime = limeRight.tagCount == 0 ||
+                            !validPose(limeRight.pose) ||
+                            (limeRight.rawFiducials.length > 0 && limeRight.rawFiducials[0].ambiguity > 0.5 && limeRight.rawFiducials[0].distToCamera > 3.5);
 
             if (!ignoreAllLimes && !ignoreRightLime) {
                 SmartDashboard.putBoolean("Rpose",true);
 
                 this.addVisionMeasurement(
-                    // mt2R.pose,
                     new Pose2d(
-                        mt2R.pose.getX(),
-                        mt2R.pose.getY(),
+                        limeRight.pose.getX(),
+                        limeRight.pose.getY(),
                         this.getPigeon2().getRotation2d()
                     ),
-                    mt2R.timestampSeconds,
+                    limeRight.timestampSeconds,
                     VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-right"))
                 );
             }
@@ -460,24 +407,23 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
 
         LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(180)).getDegrees(), this.getPigeon2().getRate(), 35.0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2B = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-back");
+        limeBack = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-back");
 
-        if (mt2B != null && mt2B.pose != null) {
-            ignoreRearLime = mt2B.tagCount == 0 ||
-                            !validPose(mt2B.pose) ||
-                            (mt2B.rawFiducials.length > 0 && mt2B.rawFiducials[0].ambiguity > 0.5 && mt2B.rawFiducials[0].distToCamera > 3.5);
+        if (limeBack != null && limeBack.pose != null) {
+            ignoreRearLime = limeBack.tagCount == 0 ||
+                            !validPose(limeBack.pose) ||
+                            (limeBack.rawFiducials.length > 0 && limeBack.rawFiducials[0].ambiguity > 0.5 && limeBack.rawFiducials[0].distToCamera > 3.5);
 
             if (!ignoreAllLimes && !ignoreRearLime) {
                 SmartDashboard.putBoolean("Bpose",true);
 
                 this.addVisionMeasurement(
-                    // mt2B.pose,
                     new Pose2d(
-                        mt2B.pose.getX(),
-                        mt2B.pose.getY(),
+                        limeBack.pose.getX(),
+                        limeBack.pose.getY(),
                         this.getPigeon2().getRotation2d()
                     ),
-                    mt2B.timestampSeconds,
+                    limeBack.timestampSeconds,
                     VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-back"))
                 );
             }
