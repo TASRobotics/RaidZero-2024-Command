@@ -13,9 +13,11 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import raidzero.robot.commands.GoToNote;
@@ -47,9 +49,10 @@ public class RobotContainer {
         NeuralLimelight.getSystem().initialize();
         
         SmartDashboard.putData(drivetrain.getField2d());
+        SmartDashboard.putData("llfield", drivetrain.llfield);
 
 
-        NamedCommands.registerCommand("Go to note", new GoToNote().withTimeout(1.5));
+        NamedCommands.registerCommand("Go to note", new GoToNote().withTimeout(2.5));
         
 
         chooser = AutoBuilder.buildAutoChooser();
@@ -75,7 +78,18 @@ public class RobotContainer {
         joystick.rightBumper().onTrue(new InstantCommand(() -> drivetrain.getPigeon2().setYaw(0)));
 
         // reset the field-centric heading on left bumper press
-        joystick.x().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
+        //! Need to use `new Rotation2d()` since field heading is not reset in 2024 CTRE lib (Should be fixed in 2025)
+        joystick.x().onTrue(drivetrain.runOnce(() -> {
+            drivetrain.getPigeon2().setYaw(0.0);
+            drivetrain.seedFieldRelative(
+                new Pose2d(
+                    drivetrain.getPoseEstimator().getEstimatedPosition().getTranslation(),
+                    new Rotation2d()
+                )
+            );
+        }));
+
+        joystick.y().whileTrue(Commands.runOnce(() -> drivetrain.initializeLimelightOdometry()));
 
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));

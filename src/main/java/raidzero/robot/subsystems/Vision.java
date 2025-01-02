@@ -11,8 +11,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import raidzero.robot.Constants.VisionConstants;
 import raidzero.robot.lib.math.Conversions;
-import raidzero.robot.wrappers.LimelightHelper;
-import raidzero.robot.wrappers.LimelightHelper.Results;
+import raidzero.robot.wrappers.LimelightHelpers;
 
 public class Vision extends SubsystemBase {
 
@@ -38,7 +37,7 @@ public class Vision extends SubsystemBase {
     private Vision() {
         alliance = DriverStation.getAlliance().get();
 
-        LimelightHelper.getLatestResults(VisionConstants.APRILTAG_CAM_NAME);
+        LimelightHelpers.getLatestResults(VisionConstants.APRILTAG_CAM_NAME);
     }
 
     //* Getters
@@ -119,7 +118,7 @@ public class Vision extends SubsystemBase {
      * @return True if the vision detects an AprilTag, false otherwise
      */
     public Boolean hasAprilTag(){
-        return LimelightHelper.getTV(VisionConstants.APRILTAG_CAM_NAME);
+        return LimelightHelpers.getTV(VisionConstants.APRILTAG_CAM_NAME);
     }
 
     /**
@@ -128,7 +127,7 @@ public class Vision extends SubsystemBase {
      * @return True if the vision detects a note, false otherwise
      */
     public Boolean hasNote(){
-        return LimelightHelper.getTV(VisionConstants.NOTE_CAM_NAME);
+        return LimelightHelpers.getTV(VisionConstants.NOTE_CAM_NAME);
     }
 
      /**
@@ -136,9 +135,9 @@ public class Vision extends SubsystemBase {
      */
     public void updateNote(){
         if (hasNote()) {
-            noteX = noteXFilter.calculate(LimelightHelper.getTX(VisionConstants.NOTE_CAM_NAME));
-            noteY = noteYFilter.calculate(LimelightHelper.getTY(VisionConstants.NOTE_CAM_NAME));
-            noteA = noteAFilter.calculate(LimelightHelper.getTA(VisionConstants.NOTE_CAM_NAME));
+            noteX = noteXFilter.calculate(LimelightHelpers.getTX(VisionConstants.NOTE_CAM_NAME));
+            noteY = noteYFilter.calculate(LimelightHelpers.getTY(VisionConstants.NOTE_CAM_NAME));
+            noteA = noteAFilter.calculate(LimelightHelpers.getTA(VisionConstants.NOTE_CAM_NAME));
         }
         else {
             noteXFilter.reset();
@@ -154,8 +153,8 @@ public class Vision extends SubsystemBase {
      * Updates the vision pose.
      */
     public void updatePose() {
-        Results results = 
-            LimelightHelper.getLatestResults(VisionConstants.APRILTAG_CAM_NAME).targetingResults;
+        LimelightHelpers.LimelightResults results = 
+            LimelightHelpers.getLatestResults(VisionConstants.APRILTAG_CAM_NAME);
 
         Pose2d robotPose = results.getBotPose2d_wpiBlue();
         double tl = results.latency_pipeline;

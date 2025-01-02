@@ -3,41 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.07,
-        "y": 4.31
+        "x": 2.16,
+        "y": 0.8739390602690462
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0064306997454024,
-        "y": 2.775387870715089
+        "x": 3.9336767837305264,
+        "y": 0.8739390602690462
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.461092957060819,
-        "y": 1.4837481077539865
+        "x": 6.150595125726627,
+        "y": 0.8739390602690462
       },
       "prevControl": {
-        "x": 2.2616181182680974,
-        "y": 1.9115862668138108
-      },
-      "nextControl": {
-        "x": 5.429903081185995,
-        "y": 0.7814973628430955
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 7.34510045339634,
-        "y": 1.4837481077539865
-      },
-      "prevControl": {
-        "x": 6.44220663851091,
-        "y": 0.21718872853970217
+        "x": 4.349561362183372,
+        "y": 0.8739390602690462
       },
       "nextControl": null,
       "isLocked": false,
@@ -54,14 +38,14 @@
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
-    "velocity": 1.0,
-    "rotation": 28.810793742972663,
+    "velocity": 0,
+    "rotation": -89.33861789687099,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "MultiObj1",
+  "folder": "Testing",
   "previewStartingState": {
-    "rotation": 122.15914402404378,
+    "rotation": -88.66402915979147,
     "velocity": 0
   },
   "useDefaultConstraints": true

@@ -2,8 +2,15 @@
   "robotWidth": 0.48,
   "robotLength": 0.48,
   "holonomicMode": true,
-  "pathFolders": [],
-  "autoFolders": [],
+  "pathFolders": [
+    "MultiObj1",
+    "MultiObj2",
+    "Testing"
+  ],
+  "autoFolders": [
+    "Multiobj",
+    "Testing"
+  ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 2.0,
   "defaultMaxAngVel": 540.0,
