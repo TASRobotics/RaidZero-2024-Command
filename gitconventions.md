@@ -2,7 +2,7 @@
 
 ## Commits
 
-- Commit names should be short, capitalized, and in imperative case
+- Commit names should be short, capitalized, and in imperative case (Eg, `Fix arm PID` or `Create intake subsystem`)
 - Commits should contain one edit, not 10 edits
     - One edit does not mean one file, but one feature that was changed/fixed/added
 
@@ -10,9 +10,10 @@
 
 - Base branch should contain subsystem name (Eg, `arm` or `swerve`) ***or*** "global feature" name (Eg, `auto`)
 - Child branches should:
-    - Be appended to parent branch's name with a `/`
-    - Describe the feature being worked on (Eg, `arm/pid` or `swerve/vision-odometry`)
+    - Be appended to parent branch's name with a `.`
+    - Describe the feature being worked on (Eg, `arm.pid` or `swerve.vision-odometry`)
 - Names should not be long!
+    - Names with multiple words should be connected with `-` (Eg, `vision-odometry`)
 
 ## Pull requests
 
