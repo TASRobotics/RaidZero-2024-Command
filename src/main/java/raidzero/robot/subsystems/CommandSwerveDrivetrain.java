@@ -229,7 +229,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             ignoreLeftLime = limeLeft.tagCount == 0 ||
                             !validPose(limeLeft.pose) ||
                             (LimelightHelpers.getTA("limelight-left") < 0.1) ||
-                            (getLLposesDist(limeLeft.pose, limeLeftPrev.pose) > ((limeLeft.timestampSeconds - limeLeftPrev.timestampSeconds) * TunerConstants.kSpeedAt12VoltsMps)) ||
+                            (limeLeftPrev != null && getLLposesDist(limeLeft.pose, limeLeftPrev.pose) > 0.8) ||
                             (limeLeft.rawFiducials.length > 0 && limeLeft.rawFiducials[0].ambiguity > 0.5 && limeLeft.rawFiducials[0].distToCamera > 3.5);
 
             if (!ignoreAllLimes && !ignoreLeftLime) {
@@ -258,7 +258,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             ignoreRightLime = limeRight.tagCount == 0 ||
                             !validPose(limeRight.pose) ||
                             (LimelightHelpers.getTA("limelight-right") < 0.1) ||
-                            (getLLposesDist(limeRight.pose, limeRightPrev.pose) > ((limeRight.timestampSeconds - limeRightPrev.timestampSeconds) * TunerConstants.kSpeedAt12VoltsMps)) ||
+                            (limeRightPrev != null && getLLposesDist(limeRight.pose, limeRightPrev.pose) > 0.8) ||
                             (limeRight.rawFiducials.length > 0 && limeRight.rawFiducials[0].ambiguity > 0.5 && limeRight.rawFiducials[0].distToCamera > 3.5);
 
             if (!ignoreAllLimes && !ignoreRightLime) {
@@ -287,7 +287,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             ignoreRearLime = limeBack.tagCount == 0 ||
                             !validPose(limeBack.pose) ||
                             (LimelightHelpers.getTA("limelight-back") < 0.1) ||
-                            (getLLposesDist(limeBack.pose, limeBackPrev.pose) > ((limeBack.timestampSeconds - limeBackPrev.timestampSeconds) * TunerConstants.kSpeedAt12VoltsMps)) ||
+                            (limeBackPrev != null && getLLposesDist(limeBack.pose, limeBackPrev.pose) > 0.8) ||
                             (limeBack.rawFiducials.length > 0 && limeBack.rawFiducials[0].ambiguity > 0.5 && limeBack.rawFiducials[0].distToCamera > 3.5);
 
             if (!ignoreAllLimes && !ignoreRearLime) {
