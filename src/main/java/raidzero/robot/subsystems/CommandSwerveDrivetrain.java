@@ -330,10 +330,20 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public void initializeLimelightOdometry() {
         LimelightHelpers.setCameraPose_RobotSpace(
-            "limelight-left",
+            "limelight-front",
+            0.2794,
             0.0,
-            -0.254,
-            0.15875,
+            0.22,
+            0.0,
+            -10.0,
+            0.0
+        );
+
+        LimelightHelpers.setCameraPose_RobotSpace(
+            "limelight-left",
+            0.2032,
+            -0.2794,
+            0.1577594,
             0.0,
             35.0,
             90.0
@@ -341,9 +351,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-right",
-            0.0,
-            0.254,
-            0.15875,
+            0.2032,
+            0.2794,
+            0.1577594,
             0.0,
             35.0,
             -90.0
@@ -351,9 +361,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-back",
-            -0.254,
+            -0.25485,
             0.0,
-            0.18415,
+            0.19812,
             0.0,
             35.0,
             180.0
