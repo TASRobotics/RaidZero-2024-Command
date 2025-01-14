@@ -16,10 +16,16 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.Publisher;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -61,7 +67,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private boolean ignoreRearLime = false;
     private boolean ignoreLeftLime = false;
     private boolean ignoreRightLime = false;
-    private boolean ignoreAllLimes = false;
+    private boolean ignoreAllLimes = true;
 
     private LimelightHelpers.PoseEstimate limeFront, limeLeft, limeRight, limeBack;
     private LimelightHelpers.PoseEstimate limeFrontPrev, limeLeftPrev, limeRightPrev, limeBackPrev;
@@ -184,14 +190,16 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             ignoreRearLime = false;
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-front", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), this.getPigeon2().getRate(), -10.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-front", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), this.getPigeon2().getRate(), 0.0, 0, 0, 0);
         limeFront = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-front");
 
         if (limeFront != null && limeFront.pose != null) {
-            ignoreFrontLime = limeFront.tagCount == 0 ||
+            ignoreFrontLime = //limeFront.tagCount == 0 ||
                             !validPose(limeFront.pose) ||
+                            (Math.abs(LimelightHelpers.getBotPose3d_wpiBlue("limelight-front").getZ()) > 0.4) ||
                             (LimelightHelpers.getTA("limelight-front") < 0.1) ||
                             (limeFrontPrev != null && getLLposesDist(limeFront.pose, limeFrontPrev.pose) > 0.8) ||
+                            (limeFrontPrev != null && (getLLposesDist(limeFront.pose, limeFrontPrev.pose) / (limeFront.timestampSeconds - limeFrontPrev.timestampSeconds)) > TunerConstants.kSpeedAt12VoltsMps) ||
                             (limeFront.rawFiducials.length > 0 && limeFront.rawFiducials[0].ambiguity > 0.5 && limeFront.rawFiducials[0].distToCamera > 3.5);
 
             SmartDashboard.putBoolean("FFcount", limeFront.tagCount == 0);
@@ -207,13 +215,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                 SmartDashboard.putBoolean("Fpose", true);
 
                 this.addVisionMeasurement(
-                    new Pose2d(
-                        limeFront.pose.getX(),
-                        limeFront.pose.getY(),
-                        this.getPigeon2().getRotation2d()
-                    ),
+                    // new Pose2d(
+                    //     limeFront.pose.getX(),
+                    //     limeFront.pose.getY(),
+                    //     this.getPigeon2().getRotation2d()
+                    // ),
+                    limeFront.pose,
                     limeFront.timestampSeconds,
-                    VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-front"))
+                    VecBuilder.fill(0.7, 0.7,9999999).div(LimelightHelpers.getTA("limelight-front"))
                 );
             } else {
                 SmartDashboard.putBoolean("Fpose", false);
@@ -222,27 +231,30 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             limeFrontPrev = limeFront;
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(90)).getDegrees(), this.getPigeon2().getRate(), 35.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-left", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), this.getPigeon2().getRate(), 0.0, 0, 0, 0);
         limeLeft = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
 
         if (limeLeft != null && limeLeft.pose != null) {
-            ignoreLeftLime = limeLeft.tagCount == 0 ||
+            ignoreLeftLime = //limeLeft.tagCount == 0 ||
                             !validPose(limeLeft.pose) ||
+                            (Math.abs(LimelightHelpers.getBotPose3d_wpiBlue("limelight-left").getZ()) > 0.4) ||
                             (LimelightHelpers.getTA("limelight-left") < 0.1) ||
                             (limeLeftPrev != null && getLLposesDist(limeLeft.pose, limeLeftPrev.pose) > 0.8) ||
+                            (limeLeftPrev != null && (getLLposesDist(limeLeft.pose, limeLeftPrev.pose) / (limeLeft.timestampSeconds - limeLeftPrev.timestampSeconds)) > TunerConstants.kSpeedAt12VoltsMps) ||
                             (limeLeft.rawFiducials.length > 0 && limeLeft.rawFiducials[0].ambiguity > 0.5 && limeLeft.rawFiducials[0].distToCamera > 3.5);
 
             if (!ignoreAllLimes && !ignoreLeftLime) {
                 SmartDashboard.putBoolean("Lpose", true);
 
                 this.addVisionMeasurement(
-                    new Pose2d(
-                        limeLeft.pose.getX(),
-                        limeLeft.pose.getY(),
-                        this.getPigeon2().getRotation2d()
-                    ),
+                    // new Pose2d(
+                    //     limeLeft.pose.getX(),
+                    //     limeLeft.pose.getY(),
+                    //     this.getPigeon2().getRotation2d()
+                    // ),
+                    limeLeft.pose,
                     limeLeft.timestampSeconds,
-                    VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-left"))
+                    VecBuilder.fill(0.7, 0.7,9999999).div(LimelightHelpers.getTA("limelight-left"))
                 );
             } else {
                 SmartDashboard.putBoolean("Lpose", false);
@@ -251,27 +263,30 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             limeLeftPrev = limeLeft;
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().minus(Rotation2d.fromDegrees(90)).getDegrees(), this.getPigeon2().getRate(), 35.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-right", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), this.getPigeon2().getRate(), 0.0, 0, 0, 0);
         limeRight = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-right");
 
         if (limeRight != null && limeRight.pose != null) {
-            ignoreRightLime = limeRight.tagCount == 0 ||
+            ignoreRightLime = //limeRight.tagCount == 0 ||
                             !validPose(limeRight.pose) ||
+                            (Math.abs(LimelightHelpers.getBotPose3d_wpiBlue("limelight-right").getZ()) > 0.4) ||
                             (LimelightHelpers.getTA("limelight-right") < 0.1) ||
                             (limeRightPrev != null && getLLposesDist(limeRight.pose, limeRightPrev.pose) > 0.8) ||
+                            (limeRightPrev != null && (getLLposesDist(limeRight.pose, limeRightPrev.pose) / (limeRight.timestampSeconds - limeRightPrev.timestampSeconds)) > TunerConstants.kSpeedAt12VoltsMps) ||
                             (limeRight.rawFiducials.length > 0 && limeRight.rawFiducials[0].ambiguity > 0.5 && limeRight.rawFiducials[0].distToCamera > 3.5);
 
             if (!ignoreAllLimes && !ignoreRightLime) {
                 SmartDashboard.putBoolean("Rpose",true);
 
                 this.addVisionMeasurement(
-                    new Pose2d(
-                        limeRight.pose.getX(),
-                        limeRight.pose.getY(),
-                        this.getPigeon2().getRotation2d()
-                    ),
+                    // new Pose2d(
+                    //     limeRight.pose.getX(),
+                    //     limeRight.pose.getY(),
+                    //     this.getPigeon2().getRotation2d()
+                    // ),
+                    limeRight.pose,
                     limeRight.timestampSeconds,
-                    VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-right"))
+                    VecBuilder.fill(0.7, 0.7,9999999).div(LimelightHelpers.getTA("limelight-right"))
                 );
             } else {
                 SmartDashboard.putBoolean("Rpose", false);
@@ -280,27 +295,33 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             limeRightPrev = limeRight;
         }
 
-        LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().plus(Rotation2d.fromDegrees(180)).getDegrees(), this.getPigeon2().getRate(), 35.0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-back", this.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees(), this.getPigeon2().getRate(), 0.0, 0, 0, 0);
         limeBack = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-back");
 
         if (limeBack != null && limeBack.pose != null) {
-            ignoreRearLime = limeBack.tagCount == 0 ||
+            ignoreRearLime = //limeBack.tagCount == 0 ||
                             !validPose(limeBack.pose) ||
+                            (Math.abs(LimelightHelpers.getBotPose3d_wpiBlue("limelight-back").getZ()) > 0.4) ||
                             (LimelightHelpers.getTA("limelight-back") < 0.1) ||
                             (limeBackPrev != null && getLLposesDist(limeBack.pose, limeBackPrev.pose) > 0.8) ||
+                            (limeBackPrev != null && (getLLposesDist(limeBack.pose, limeBackPrev.pose) / (limeBack.timestampSeconds - limeBackPrev.timestampSeconds)) > TunerConstants.kSpeedAt12VoltsMps) ||
                             (limeBack.rawFiducials.length > 0 && limeBack.rawFiducials[0].ambiguity > 0.5 && limeBack.rawFiducials[0].distToCamera > 3.5);
+
+            // SmartDashboard.putNumber("BackTA", LimelightHelpers.getTA("limelight-back"));
+            // SmartDashboard.putNumber("backAmb", limeBack.rawFiducials[0].ambiguity);
 
             if (!ignoreAllLimes && !ignoreRearLime) {
                 SmartDashboard.putBoolean("Bpose",true);
 
                 this.addVisionMeasurement(
-                    new Pose2d(
-                        limeBack.pose.getX(),
-                        limeBack.pose.getY(),
-                        this.getPigeon2().getRotation2d()
-                    ),
+                    // new Pose2d(
+                    //     limeBack.pose.getX(),
+                    //     limeBack.pose.getY(),
+                    //     this.getPigeon2().getRotation2d()
+                    // ),
+                    limeBack.pose,
                     limeBack.timestampSeconds,
-                    VecBuilder.fill(.1,.1,9999999).div(LimelightHelpers.getTA("limelight-back"))
+                    VecBuilder.fill(0.7, 0.7,9999999).div(LimelightHelpers.getTA("limelight-back"))
                 );
             } else {
                 SmartDashboard.putBoolean("Bpose", false);
@@ -356,7 +377,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             this::getRelativeSpeeds,
             (speeds) -> this.setControl(AutoRequest.withSpeeds(speeds)),
             new HolonomicPathFollowerConfig(
-                new PIDConstants(21.87, 0, 0),
+                new PIDConstants(5, 0, 0),
                 new PIDConstants(2.3, 0, 0),
                 3.5,
                 0.24,
@@ -372,27 +393,17 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public void initializeLimelightOdometry() {
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-front",
-            0.2794,
+            -0.2794,
             0.0,
             0.22,
             0.0,
             -10.0,
-            0.0
+            180.0
         );
 
         LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-left",
-            0.2032,
-            -0.2794,
-            0.1577594,
-            0.0,
-            35.0,
-            90.0
-        );
-
-        LimelightHelpers.setCameraPose_RobotSpace(
-            "limelight-right",
-            0.2032,
+            -0.2032,
             0.2794,
             0.1577594,
             0.0,
@@ -401,13 +412,23 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         );
 
         LimelightHelpers.setCameraPose_RobotSpace(
+            "limelight-right",
+            -0.2032,
+            -0.2794,
+            0.1577594,
+            0.0,
+            35.0,
+            90.0
+        );
+
+        LimelightHelpers.setCameraPose_RobotSpace(
             "limelight-back",
-            -0.25485,
+            0.25485,
             0.0,
             0.19812,
             0.0,
             35.0,
-            180.0
+            0.0
         );
     }
 }
