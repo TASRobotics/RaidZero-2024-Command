@@ -69,6 +69,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private boolean ignoreRightLime = false;
     private boolean ignoreAllLimes = true;
 
+    private StructArrayPublisher<SwerveModuleState> modulePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("ModuleStates", SwerveModuleState.struct).publish();
+    private StructPublisher<Rotation3d> rotationPublisher = NetworkTableInstance.getDefault().getStructTopic("RotationState", Rotation3d.struct).publish();
+    private StructPublisher <Pose2d> posefront = NetworkTableInstance.getDefault().getStructTopic("posefront", Pose2d.struct).publish();
+    private StructPublisher <Pose2d> poseleft = NetworkTableInstance.getDefault().getStructTopic("poseleft", Pose2d.struct).publish();
+    private StructPublisher <Pose2d> poseright = NetworkTableInstance.getDefault().getStructTopic("poseright", Pose2d.struct).publish();
+    private StructPublisher <Pose2d> poseback = NetworkTableInstance.getDefault().getStructTopic("poseback", Pose2d.struct).publish();
+
     private LimelightHelpers.PoseEstimate limeFront, limeLeft, limeRight, limeBack;
     private LimelightHelpers.PoseEstimate limeFrontPrev, limeLeftPrev, limeRightPrev, limeBackPrev;
 
@@ -178,6 +185,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         SmartDashboard.putNumber("Bot x", this.getPoseEstimator().getEstimatedPosition().getX());
         SmartDashboard.putNumber("Bot y", this.getPoseEstimator().getEstimatedPosition().getY());
 
+        SmartDashboard.putNumber("Pigeon degrees", this.getPigeon2().getYaw().getValueAsDouble());
+
+        modulePublisher.set(this.getModuleStates());
+        rotationPublisher.set(this.getRotation3d());
+
         if (this.getPigeon2().getRate() > 720) {
             ignoreFrontLime = true;
             ignoreLeftLime = true;
@@ -202,17 +214,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                             (limeFrontPrev != null && (getLLposesDist(limeFront.pose, limeFrontPrev.pose) / (limeFront.timestampSeconds - limeFrontPrev.timestampSeconds)) > TunerConstants.kSpeedAt12VoltsMps) ||
                             (limeFront.rawFiducials.length > 0 && limeFront.rawFiducials[0].ambiguity > 0.5 && limeFront.rawFiducials[0].distToCamera > 3.5);
 
-            SmartDashboard.putBoolean("FFcount", limeFront.tagCount == 0);
-            SmartDashboard.putNumber("FFCountNum", limeFront.tagCount);
-            SmartDashboard.putBoolean("FFvalid pose", !validPose(limeFront.pose));
-            SmartDashboard.putString("FFPose", limeFront.pose.toString());
-            SmartDashboard.putBoolean("FFTA", (LimelightHelpers.getTA("limelight-front") < 0.1));
-            SmartDashboard.putNumber("FFTAVAL", LimelightHelpers.getTA("limelight-front"));
-            SmartDashboard.putBoolean("FFDist", (limeFrontPrev != null && getLLposesDist(limeFront.pose, limeFrontPrev.pose) > 0.8));
-            SmartDashboard.putBoolean("FFfinal",  (limeFront.rawFiducials.length > 0 && limeFront.rawFiducials[0].ambiguity > 0.5 && limeFront.rawFiducials[0].distToCamera > 3.5));
-
+                            
             if (!ignoreAllLimes && !ignoreFrontLime) {
                 SmartDashboard.putBoolean("Fpose", true);
+                SmartDashboard.putString("FRONT", limeFront.pose.toString());
+                posefront.set(limeFront.pose);
 
                 this.addVisionMeasurement(
                     // new Pose2d(
@@ -245,6 +251,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
             if (!ignoreAllLimes && !ignoreLeftLime) {
                 SmartDashboard.putBoolean("Lpose", true);
+                SmartDashboard.putString("LEFT", limeLeft.pose.toString());
+                poseleft.set(limeLeft.pose);
 
                 this.addVisionMeasurement(
                     // new Pose2d(
@@ -277,6 +285,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
             if (!ignoreAllLimes && !ignoreRightLime) {
                 SmartDashboard.putBoolean("Rpose",true);
+                SmartDashboard.putString("RIGHT", limeRight.pose.toString());
+                poseright.set(limeRight.pose);
 
                 this.addVisionMeasurement(
                     // new Pose2d(
@@ -312,6 +322,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
             if (!ignoreAllLimes && !ignoreRearLime) {
                 SmartDashboard.putBoolean("Bpose",true);
+                SmartDashboard.putString("BACK", limeBack.pose.toString());
+                poseback.set(limeBack.pose);
 
                 this.addVisionMeasurement(
                     // new Pose2d(
